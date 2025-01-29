@@ -8,6 +8,7 @@ import RootPendingComponent from "./components/core/default-pending";
 import "./index.css";
 import { ThemeProvider } from "./providers/theme-provider";
 import { routeTree } from "./routeTree.gen";
+import { SidebarProvider } from "./components/ui/sidebar";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +38,9 @@ if (!rootElement.innerHTML) {
         <StrictMode>
             <ThemeProvider defaultTheme="light" storageKey="ui-theme">
                 <QueryClientProvider client={queryClient}>
-                    <RouterProvider router={router} />
+                    <SidebarProvider>
+                        <RouterProvider router={router} />
+                    </SidebarProvider>
                 </QueryClientProvider>
             </ThemeProvider>
         </StrictMode>,
