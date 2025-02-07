@@ -11,11 +11,11 @@ import {
     transformQuestionPaperData,
     transformQuestionPaperEditData,
 } from "./helper";
-import { FilterOption } from "@/types/question-paper-filter";
+import { FilterOption } from "@/types/assessments/question-paper-filter";
 import {
     MyQuestionPaperFormEditInterface,
     MyQuestionPaperFormInterface,
-} from "@/types/question-paper-form";
+} from "@/types/assessments/question-paper-form";
 
 export const addQuestionPaper = async (data: MyQuestionPaperFormInterface) => {
     try {
@@ -81,7 +81,6 @@ export const getQuestionPaperById = async (questionPaperId: string | undefined) 
 export const getQuestionPaperDataWithFilters = async (
     pageNo: number,
     pageSize: number,
-    instituteId: string,
     data: Record<string, FilterOption[]>,
 ) => {
     try {
@@ -90,7 +89,6 @@ export const getQuestionPaperDataWithFilters = async (
             url: `${GET_QUESTION_PAPER_FILTERED_DATA}`,
             params: {
                 pageNo,
-                instituteId,
                 pageSize,
             },
             data: transformFilterData(data),
@@ -108,8 +106,8 @@ export const getQuestionPaperFilteredData = (
     data: Record<string, FilterOption[]>,
 ) => {
     return {
-        queryKey: ["GET_QUESTION_PAPER_FILTERED_DATA", pageNo, pageSize, instituteId, data],
-        queryFn: () => getQuestionPaperDataWithFilters(pageNo, pageSize, instituteId, data),
+        queryKey: ["GET_QUESTION_PAPER_FILTERED_DATA", pageNo, pageSize, data],
+        queryFn: () => getQuestionPaperDataWithFilters(pageNo, pageSize, data),
         staleTime: Infinity, // Prevent query from becoming stale
         cacheTime: Infinity, // Keep the query in the cache indefinitely
     };
