@@ -27,6 +27,14 @@ import { z } from "zod";
 import sectionDetailsSchema from "../-utils/section-details-schema";
 import { UseFormReturn } from "react-hook-form";
 import { Dispatch, SetStateAction } from "react";
+import { MyButton } from "@/components/design-system/button";
+import { Plus } from "phosphor-react";
+import { useState } from "react";
+import { AddTagDialogBox } from "../-components/addtag/AddTagDialogBox";
+import { fetchStaticData } from "../-services/utils";
+import { useEffect } from "react";
+import { useFilterStore } from "../-store/useFilterOptions";
+import { useSelectedChips } from "../-store/useSelectedChips";
 
 export type SectionFormType = z.infer<typeof sectionDetailsSchema>;
 export const QuestionPapersList = ({
@@ -54,9 +62,25 @@ export const QuestionPapersList = ({
     currentQuestionImageIndex: number;
     setCurrentQuestionImageIndex: Dispatch<SetStateAction<number>>;
 }) => {
-    const { setIsSavedQuestionPaperDialogOpen } = useDialogStore();
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [questionId, setQuestionId] = useState<string>();
+    const {
+        setIsSavedQuestionPaperDialogOpen,
+        setIsUpdate,
+        setQuestionPaperId,
+        setIsMainQuestionPaperAddDialogOpen,
+    } = useDialogStore();
     const { instituteDetails } = useInstituteDetailsStore();
+    const { setOptions } = useFilterStore();
+    const { clearFilters } = useSelectedChips();
 
+    const fetch = async () => {
+        const data = await fetchStaticData();
+        setOptions(data);
+    };
+    useEffect(() => {
+        fetch();
+    }, []);
     const handleMarkQuestionPaperStatus = useMutation({
         mutationFn: ({
             status,
@@ -150,8 +174,20 @@ export const QuestionPapersList = ({
         handleGetQuestionPaperData.mutate({ id });
     };
 
+    const navigateToAddTags = (id: string) => {
+        clearFilters();
+        setOpenDialog(true);
+        setQuestionId(id);
+    };
+
     return (
         <div className="mt-5 flex flex-col gap-5">
+            <AddTagDialogBox
+                heading="Add Tag"
+                onOpenChange={setOpenDialog}
+                open={openDialog}
+                questionId={questionId}
+            />
             {questionPaperList?.content?.map((questionsData, idx) => (
                 <div
                     key={idx}
@@ -206,29 +242,54 @@ export const QuestionPapersList = ({
                                         >
                                             Delete Question Paper
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => {
+                                                setIsMainQuestionPaperAddDialogOpen(true);
+                                                setIsUpdate(true);
+                                                setQuestionPaperId(questionsData.id);
+                                            }}
+                                            className="cursor-pointer"
+                                        >
+                                            Add More Questions
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
                         )}
                     </div>
-                    <div className="flex w-full items-center justify-start gap-8 text-xs">
-                        <p>
-                            Created On:{" "}
-                            {new Date(questionsData.created_on).toLocaleDateString() || "N/A"}
-                        </p>
-                        <p>
-                            Year/Class:{" "}
-                            {instituteDetails &&
-                                getLevelNameById(instituteDetails.levels, questionsData.level_id)}
-                        </p>
-                        <p>
-                            Subject:{" "}
-                            {instituteDetails &&
-                                getSubjectNameById(
-                                    instituteDetails.subjects,
-                                    questionsData.subject_id,
-                                )}
-                        </p>
+                    <div className="flex flex-row justify-center">
+                        <div className="flex w-full items-center justify-start gap-8 text-xs">
+                            <p>
+                                Created On:{" "}
+                                {new Date(questionsData.created_on).toLocaleDateString() || "N/A"}
+                            </p>
+                            <p>
+                                Year/Class:{" "}
+                                {instituteDetails &&
+                                    getLevelNameById(
+                                        instituteDetails.levels,
+                                        questionsData.level_id,
+                                    )}
+                            </p>
+                            <p>
+                                Subject:{" "}
+                                {instituteDetails &&
+                                    getSubjectNameById(
+                                        instituteDetails.subjects,
+                                        questionsData.subject_id,
+                                    )}
+                            </p>
+                        </div>
+                        <MyButton
+                            buttonType="secondary"
+                            scale="medium"
+                            onClick={() => {
+                                navigateToAddTags(questionsData.id);
+                            }}
+                        >
+                            <Plus />
+                            Add Tag
+                        </MyButton>
                     </div>
                 </div>
             ))}

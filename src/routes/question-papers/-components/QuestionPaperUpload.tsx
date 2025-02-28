@@ -13,7 +13,11 @@ import CustomInput from "@/components/design-system/custom-input";
 import { useMutation } from "@tanstack/react-query";
 import { uploadDocsFile } from "../-services/question-paper-services";
 import { toast } from "sonner";
-import { addQuestionPaper, getQuestionPaperById } from "../-utils/question-paper-services";
+import {
+    addQuestionPaper,
+    getQuestionPaperById,
+    addQuestionsToQuestionPaper,
+} from "../-utils/question-paper-services";
 import { MyQuestion, MyQuestionPaperFormInterface } from "@/types/assessments/question-paper-form";
 import {
     getIdByLevelName,
@@ -32,6 +36,7 @@ import { DashboardLoader } from "@/components/core/dashboard-loader";
 import useDialogStore from "../-global-states/question-paper-dialogue-close";
 import sectionDetailsSchema from "../-utils/section-details-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import ConvertToHTML from "../-images/convertToHTML.png";
 
 export type SectionFormType = z.infer<typeof sectionDetailsSchema>;
 export type UploadQuestionPaperFormType = z.infer<typeof uploadQuestionPaperFormSchema>;
@@ -206,11 +211,19 @@ export const QuestionPaperUpload = ({
         setIsMainQuestionPaperAddDialogOpen,
         setIsManualQuestionPaperDialogOpen,
         setIsUploadFromDeviceDialogOpen,
+        isUpdate,
+        questionPaperId: updateQuestionPaperId,
     } = useDialogStore();
-
+    console.log("updated :", isUpdate);
+    console.log("questionId :", updateQuestionPaperId);
     // Your mutation setup
     const handleSubmitFormData = useMutation({
-        mutationFn: ({ data }: { data: MyQuestionPaperFormInterface }) => addQuestionPaper(data),
+        mutationFn: ({ data }: { data: MyQuestionPaperFormInterface }) => {
+            if (isUpdate) {
+                return addQuestionsToQuestionPaper(data, updateQuestionPaperId);
+            } else return addQuestionPaper(data);
+        },
+
         onMutate: () => {
             setIsFormSubmitting(true);
         },
@@ -218,7 +231,9 @@ export const QuestionPaperUpload = ({
             setIsFormSubmitting(false);
         },
         onSuccess: async (data) => {
-            const getQuestionPaper = await getQuestionPaperById(data.saved_question_paper_id);
+            const getQuestionPaper = await getQuestionPaperById(
+                isUpdate ? updateQuestionPaperId : data.saved_question_paper_id,
+            );
             const transformQuestionsData: MyQuestion[] = transformResponseDataToMyQuestionsSchema(
                 getQuestionPaper.question_dtolist,
             );
@@ -229,10 +244,10 @@ export const QuestionPaperUpload = ({
             });
             if (index !== undefined) {
                 // Check if index is defined
-                sectionsForm?.setValue(`section.${index}`, {
-                    ...sectionsForm?.getValues(`section.${index}`), // Keep other section data intact
-                    uploaded_question_paper: data.saved_question_paper_id,
-                    adaptive_marking_for_each_question: transformQuestionsData.map((question) => ({
+
+                sectionsForm?.setValue(
+                    `section.${index}.adaptive_marking_for_each_question`,
+                    transformQuestionsData.map((question) => ({
                         questionId: question.questionId,
                         questionName: question.questionName,
                         questionType: question.questionType,
@@ -248,7 +263,8 @@ export const QuestionPaperUpload = ({
                             min: question.questionDuration.min,
                         },
                     })),
-                });
+                );
+                sectionsForm?.trigger(`section.${index}.adaptive_marking_for_each_question`);
             }
             setIsMainQuestionPaperAddDialogOpen(false);
             setIsManualQuestionPaperDialogOpen(false);
@@ -425,6 +441,7 @@ export const QuestionPaperUpload = ({
                                             required
                                         />
                                     </div>
+
                                     <div className="flex flex-col gap-6">
                                         <div
                                             className="flex w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dotted border-primary-500 p-4"
@@ -442,7 +459,7 @@ export const QuestionPaperUpload = ({
                                             If you are having a problem while uploading docx file
                                             then please convert your file in html{" "}
                                             <a
-                                                href="https://convertio.co/docx-html/"
+                                                href="https://wordtohtml.net/convert/docx-to-html"
                                                 target="_blank"
                                                 className="text-blue-500"
                                                 rel="noreferrer"
@@ -451,6 +468,18 @@ export const QuestionPaperUpload = ({
                                             </a>{" "}
                                             and try to re-upload.
                                         </h1>
+                                    </div>
+                                    <div className="flex flex-col gap-6">
+                                        <h1 className="-mt-4 text-xs text-red-500">
+                                            Step 1 - Go to this website
+                                        </h1>
+                                        <h1 className="-mt-4 text-xs text-red-500">
+                                            Step 2 - Enable embed image
+                                        </h1>
+                                        <h1 className="-mt-4 text-xs text-red-500">
+                                            Step 3 - Download your html file after converting
+                                        </h1>
+                                        <img src={ConvertToHTML} alt="logo" />
                                     </div>
                                     {getValues("fileUpload") && (
                                         <div className="flex w-full items-center gap-2 rounded-md bg-neutral-100 p-2">
@@ -474,7 +503,7 @@ export const QuestionPaperUpload = ({
                                                     />
                                                 </div>
 
-                                                <p className="whitespace-normal text-xs">
+                                                <p className="my-1 whitespace-normal text-xs">
                                                     {(
                                                         (((getValues("fileUpload")?.size || 0) /
                                                             (1024 * 1024)) *

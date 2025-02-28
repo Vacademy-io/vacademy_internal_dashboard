@@ -4,12 +4,14 @@ import {
     GET_QUESTION_PAPER_FILTERED_DATA,
     MARK_QUESTION_PAPER_STATUS,
     UPDATE_QUESTION_PAPER,
+    ADD_QUESTIONS_TO_QUESTION_PAPER,
 } from "@/constants/urls";
 import authenticatedAxiosInstance from "@/lib/auth/axiosInstance";
 import {
     transformFilterData,
     transformQuestionPaperData,
     transformQuestionPaperEditData,
+    transformQuestionPaperDataToAddQuestionToQuestionPaper,
 } from "./helper";
 import { FilterOption } from "@/types/assessments/question-paper-filter";
 import {
@@ -23,6 +25,21 @@ export const addQuestionPaper = async (data: MyQuestionPaperFormInterface) => {
             method: "POST",
             url: `${ADD_QUESTION_PAPER}`,
             data: transformQuestionPaperData(data),
+        });
+        return response?.data;
+    } catch (error: unknown) {
+        throw new Error(`${error}`);
+    }
+};
+export const addQuestionsToQuestionPaper = async (
+    data: MyQuestionPaperFormInterface,
+    id: string,
+) => {
+    try {
+        const response = await authenticatedAxiosInstance({
+            method: "POST",
+            url: `${ADD_QUESTIONS_TO_QUESTION_PAPER}`,
+            data: transformQuestionPaperDataToAddQuestionToQuestionPaper(data, id),
         });
         return response?.data;
     } catch (error: unknown) {
@@ -102,7 +119,7 @@ export const getQuestionPaperDataWithFilters = async (
 export const getQuestionPaperFilteredData = (
     pageNo: number,
     pageSize: number,
-    instituteId: string,
+    // instituteId: string,
     data: Record<string, FilterOption[]>,
 ) => {
     return {

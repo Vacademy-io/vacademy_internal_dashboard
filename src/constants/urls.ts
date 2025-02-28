@@ -19,6 +19,7 @@ export const GET_QUESTION_PAPER_FILTERED_DATA = `${BASE_URL}/assessment-service/
 export const MARK_QUESTION_PAPER_STATUS = `${BASE_URL}/assessment-service/question-paper/manage/v1/mark-status`;
 export const GET_QUESTION_PAPER_BY_ID = `${BASE_URL}/assessment-service/question-paper/view/v1/get-by-id`;
 export const ADD_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/public/manage/v1/add`;
+export const ADD_QUESTIONS_TO_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/public/manage/v1/update`;
 export const UPDATE_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/manage/v1/edit`;
 export const STEP1_ASSESSMENT_URL = `${BASE_URL}/assessment-service/assessment/basic/create/v1/submit`;
 export const STEP2_ASSESSMENT_URL = `${BASE_URL}/assessment-service/assessment/add-questions/create/v1/submit`;
@@ -28,3 +29,6 @@ export const GET_SIGNED_URL = `${BASE_URL}/media-service/get-signed-url`;
 export const ACKNOWLEDGE = `${BASE_URL}/media-service/acknowledge`;
 export const GET_PUBLIC_URL = `${BASE_URL}/media-service/get-public-url`;
 export const GET_DETAILS = `${BASE_URL}/media-service/get-details/ids`;
+
+export const INIT_FILTERS = `${BASE_URL}/community-service/init/question-filters`;
+export const ADD_FILTERS_TO_ENTITY = `${BASE_URL}/community-service/add-tags-to-entity`;
