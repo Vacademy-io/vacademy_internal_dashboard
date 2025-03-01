@@ -1,15 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PaginatedResponse } from "@/types/question-paper-template";
+import { PaginatedResponse } from "@/types/assessments/question-paper-template";
 
 export const TabListComponent = ({
     selectedTab,
     questionPaperList,
-    questionPaperFavouriteList,
 }: {
     selectedTab: string;
     questionPaperList: PaginatedResponse;
-    questionPaperFavouriteList: PaginatedResponse;
 }) => {
     return (
         <TabsList className="inline-flex h-auto justify-start gap-4 rounded-none border-b-[1px] !bg-transparent p-0">
@@ -29,7 +27,7 @@ export const TabListComponent = ({
                     {questionPaperList.total_elements}
                 </Badge>
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
                 value="FAVOURITE"
                 className={`inline-flex gap-1.5 rounded-none px-12 py-2 !shadow-none ${
                     selectedTab === "FAVOURITE"
@@ -46,7 +44,7 @@ export const TabListComponent = ({
                 >
                     {questionPaperFavouriteList.content.length}
                 </Badge>
-            </TabsTrigger>
+            </TabsTrigger> */}
         </TabsList>
     );
 };

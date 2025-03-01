@@ -5,6 +5,10 @@ interface DialogState {
     isManualQuestionPaperDialogOpen: boolean;
     isUploadFromDeviceDialogOpen: boolean;
     isSavedQuestionPaperDialogOpen: boolean;
+    isUpdate: boolean;
+    questionPaperId: string;
+    setIsUpdate: (isUpdat: boolean) => void;
+    setQuestionPaperId: (id: string) => void;
     setIsMainQuestionPaperAddDialogOpen: (isOpen: boolean) => void;
     setIsManualQuestionPaperDialogOpen: (isOpen: boolean) => void;
     setIsUploadFromDeviceDialogOpen: (isOpen: boolean) => void;
@@ -16,6 +20,10 @@ const useDialogStore = create<DialogState>((set) => ({
     isManualQuestionPaperDialogOpen: false,
     isUploadFromDeviceDialogOpen: false,
     isSavedQuestionPaperDialogOpen: false,
+    isUpdate: false,
+    questionPaperId: "",
+    setIsUpdate: (isUpdate) => set({ isUpdate: isUpdate }),
+    setQuestionPaperId: (id: string) => set({ questionPaperId: id }),
     setIsMainQuestionPaperAddDialogOpen: (isOpen) =>
         set({ isMainQuestionPaperAddDialogOpen: isOpen }),
     setIsManualQuestionPaperDialogOpen: (isOpen) =>

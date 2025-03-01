@@ -11,9 +11,16 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root";
+import { Route as IndexImport } from "./routes/index";
 import { Route as QuestionPapersIndexImport } from "./routes/question-papers/index";
 
 // Create/Update Routes
+
+const IndexRoute = IndexImport.update({
+    id: "/",
+    path: "/",
+    getParentRoute: () => rootRoute,
+} as any);
 
 const QuestionPapersIndexRoute = QuestionPapersIndexImport.update({
     id: "/question-papers/",
@@ -25,6 +32,13 @@ const QuestionPapersIndexRoute = QuestionPapersIndexImport.update({
 
 declare module "@tanstack/react-router" {
     interface FileRoutesByPath {
+        "/": {
+            id: "/";
+            path: "/";
+            fullPath: "/";
+            preLoaderRoute: typeof IndexImport;
+            parentRoute: typeof rootRoute;
+        };
         "/question-papers/": {
             id: "/question-papers/";
             path: "/question-papers";
@@ -38,32 +52,37 @@ declare module "@tanstack/react-router" {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
+    "/": typeof IndexRoute;
     "/question-papers": typeof QuestionPapersIndexRoute;
 }
 
 export interface FileRoutesByTo {
+    "/": typeof IndexRoute;
     "/question-papers": typeof QuestionPapersIndexRoute;
 }
 
 export interface FileRoutesById {
     __root__: typeof rootRoute;
+    "/": typeof IndexRoute;
     "/question-papers/": typeof QuestionPapersIndexRoute;
 }
 
 export interface FileRouteTypes {
     fileRoutesByFullPath: FileRoutesByFullPath;
-    fullPaths: "/question-papers";
+    fullPaths: "/" | "/question-papers";
     fileRoutesByTo: FileRoutesByTo;
-    to: "/question-papers";
-    id: "__root__" | "/question-papers/";
+    to: "/" | "/question-papers";
+    id: "__root__" | "/" | "/question-papers/";
     fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
+    IndexRoute: typeof IndexRoute;
     QuestionPapersIndexRoute: typeof QuestionPapersIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
+    IndexRoute: IndexRoute,
     QuestionPapersIndexRoute: QuestionPapersIndexRoute,
 };
 
@@ -77,8 +96,12 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/question-papers/"
       ]
+    },
+    "/": {
+      "filePath": "index.ts"
     },
     "/question-papers/": {
       "filePath": "question-papers/index.tsx"
