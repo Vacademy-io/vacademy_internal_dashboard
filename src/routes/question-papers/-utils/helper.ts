@@ -1,11 +1,11 @@
 import { INSTITUTE_ID } from "@/constants/urls";
-import { FilterOption } from "@/types/question-paper-filter";
-import { Level, QuestionResponse, Subject } from "@/types/question-paper-template";
+import { FilterOption } from "@/types/assessments/question-paper-filter";
+import { Level, QuestionResponse, Subject } from "@/types/assessments/question-paper-template";
 import {
     MyQuestion,
     MyQuestionPaperFormEditInterface,
     MyQuestionPaperFormInterface,
-} from "@/types/question-paper-form";
+} from "@/types/assessments/question-paper-form";
 import { useMutation } from "@tanstack/react-query";
 
 export function formatStructure(structure: string, value: string | number): string {
@@ -115,7 +115,109 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
                     type: "HTML", // Assuming explanation is in HTML
                     content: question.explanation,
                 },
-                default_question_time_mins: null, // Assuming default time is not provided
+                default_question_time_mins:
+                    Number(question.questionDuration.hrs || 0) * 60 +
+                    Number(question.questionDuration.min || 0),
+                options, // Use the mapped options
+                errors: [], // Assuming no errors are provided
+                warnings: [], // Assuming no warnings are provided
+            };
+        }),
+    };
+}
+
+export function transformQuestionPaperDataToAddQuestionToQuestionPaper(
+    data: MyQuestionPaperFormInterface,
+    id: string,
+) {
+    return {
+        id: id,
+        title: data.title,
+        institute_id: INSTITUTE_ID, // Assuming there's no direct mapping for institute_id
+        level_id: data.yearClass, // Assuming there's no direct mapping for level_id
+        subject_id: data.subject, // Assuming there's no direct mapping for subject_id
+        questions: data?.questions?.map((question) => {
+            const options =
+                question.questionType === "MCQS"
+                    ? question.singleChoiceOptions.map((opt, idx) => ({
+                          id: null, // Assuming no direct mapping for option ID
+                          preview_id: idx, // Using index as preview_id
+                          question_id: null,
+                          text: {
+                              id: null, // Assuming no direct mapping for option text ID
+                              type: "HTML", // Assuming option content is HTML
+                              content: opt?.name?.replace(/<\/?p>/g, ""), // Remove <p> tags from content
+                          },
+                          media_id: null, // Assuming no direct mapping for option media ID
+                          option_order: null,
+                          created_on: null,
+                          updated_on: null,
+                          explanation_text: {
+                              id: null, // Assuming no direct mapping for explanation text ID
+                              type: "HTML", // Assuming explanation for options is in HTML
+                              content: question.explanation, // Assuming no explanation provided for options
+                          },
+                      }))
+                    : question.multipleChoiceOptions.map((opt, idx) => ({
+                          id: null, // Assuming no direct mapping for option ID
+                          preview_id: idx, // Using index as preview_id
+                          question_id: null,
+                          text: {
+                              id: null, // Assuming no direct mapping for option text ID
+                              type: "HTML", // Assuming option content is HTML
+                              content: opt?.name?.replace(/<\/?p>/g, ""), // Remove <p> tags from content
+                          },
+                          media_id: null, // Assuming no direct mapping for option media ID
+                          option_order: null,
+                          created_on: null,
+                          updated_on: null,
+                          explanation_text: {
+                              id: null, // Assuming no direct mapping for explanation text ID
+                              type: "HTML", // Assuming explanation for options is in HTML
+                              content: question.explanation, // Assuming no explanation provided for options
+                          },
+                      }));
+
+            // Extract correct option indices as strings
+            const correctOptionIds = (
+                question.questionType === "MCQS"
+                    ? question.singleChoiceOptions
+                    : question.multipleChoiceOptions
+            )
+                .map((opt, idx) => (opt.isSelected ? idx.toString() : null))
+                .filter((idx) => idx !== null); // Remove null values
+
+            const auto_evaluation_json = JSON.stringify({
+                type: question.questionType === "MCQS" ? "MCQS" : "MCQM",
+                data: {
+                    correctOptionIds,
+                },
+            });
+
+            return {
+                id: null,
+                preview_id: question.questionId, // Assuming no direct mapping for preview_id
+                text: {
+                    id: null, // Assuming no direct mapping for text ID
+                    type: "HTML", // Assuming the content is HTML
+                    content: question.questionName.replace(/<\/?p>/g, ""), // Remove <p> tags from content
+                },
+                media_id: null, // Assuming no direct mapping for media_id
+                created_at: null,
+                updated_at: null,
+                question_response_type: null, // Assuming no direct mapping for response type
+                question_type: question.questionType,
+                access_level: null, // Assuming no direct mapping for access level
+                auto_evaluation_json, // Add auto_evaluation_json
+                evaluation_type: null, // Assuming no direct mapping for evaluation type
+                explanation_text: {
+                    id: null, // Assuming no direct mapping for explanation text ID
+                    type: "HTML", // Assuming explanation is in HTML
+                    content: question.explanation,
+                },
+                default_question_time_mins:
+                    Number(question.questionDuration.hrs || 0) * 60 +
+                    Number(question.questionDuration.min || 0),
                 options, // Use the mapped options
                 errors: [], // Assuming no errors are provided
                 warnings: [], // Assuming no warnings are provided
@@ -261,6 +363,11 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
             questionName: item.text?.content || "",
             explanation: item.explanation_text?.content || "",
             questionType: item.question_type === "MCQS" ? "MCQS" : "MCQM",
+            questionPenalty: "",
+            questionDuration: {
+                hrs: String(Math.floor((item.default_question_time_mins ?? 0) / 60)), // Extract hours
+                min: String((item.default_question_time_mins ?? 0) % 60), // Extract remaining minutes
+            },
             questionMark: "",
             singleChoiceOptions: [],
             multipleChoiceOptions: [],
@@ -272,12 +379,34 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
                 isSelected: correctOptionIds.includes(option.id || option.preview_id),
                 image: {},
             }));
+            baseQuestion.multipleChoiceOptions = Array(4).fill({
+                name: "",
+                isSelected: false,
+                image: {
+                    imageId: "",
+                    imageName: "",
+                    imageTitle: "",
+                    imageFile: "",
+                    isDeleted: false,
+                },
+            });
         } else if (item.question_type === "MCQM") {
             baseQuestion.multipleChoiceOptions = item.options.map((option) => ({
                 name: option.text?.content || "",
                 isSelected: correctOptionIds.includes(option.id || option.preview_id),
                 image: {},
             }));
+            baseQuestion.singleChoiceOptions = Array(4).fill({
+                name: "",
+                isSelected: false,
+                image: {
+                    imageId: "",
+                    imageName: "",
+                    imageTitle: "",
+                    imageFile: "",
+                    isDeleted: false,
+                },
+            });
         }
         return baseQuestion;
     });

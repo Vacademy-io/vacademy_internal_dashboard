@@ -11,19 +11,30 @@ import ViewQuestionPaper from "./ViewQuestionPaper";
 import { useMutation } from "@tanstack/react-query";
 import { getQuestionPaperById, markQuestionPaperStatus } from "../-utils/question-paper-services";
 import { INSTITUTE_ID } from "@/constants/urls";
-import { PaginatedResponse, QuestionPaperInterface } from "@/types/question-paper-template";
+import {
+    PaginatedResponse,
+    QuestionPaperInterface,
+} from "@/types/assessments/question-paper-template";
 import {
     getLevelNameById,
     getSubjectNameById,
     transformResponseDataToMyQuestionsSchema,
 } from "../-utils/helper";
 import { useInstituteDetailsStore } from "@/stores/students/students-list/useInstituteDetailsStore";
-import { DashboardLoader } from "@/components/core/dashboard-loader";
 import useDialogStore from "../-global-states/question-paper-dialogue-close";
-import { MyQuestion } from "@/types/question-paper-form";
+import { MyQuestion } from "@/types/assessments/question-paper-form";
 import { z } from "zod";
 import sectionDetailsSchema from "../-utils/section-details-schema";
 import { UseFormReturn } from "react-hook-form";
+import { Dispatch, SetStateAction } from "react";
+import { MyButton } from "@/components/design-system/button";
+import { Plus } from "phosphor-react";
+import { useState } from "react";
+import { AddTagDialogBox } from "../-components/addtag/AddTagDialogBox";
+import { fetchStaticData } from "../-services/utils";
+import { useEffect } from "react";
+import { useFilterStore } from "../-store/useFilterOptions";
+import { useSelectedChips } from "../-store/useSelectedChips";
 
 export type SectionFormType = z.infer<typeof sectionDetailsSchema>;
 export const QuestionPapersList = ({
@@ -34,6 +45,10 @@ export const QuestionPapersList = ({
     isAssessment,
     index,
     sectionsForm,
+    currentQuestionIndex,
+    setCurrentQuestionIndex,
+    currentQuestionImageIndex,
+    setCurrentQuestionImageIndex,
 }: {
     questionPaperList: PaginatedResponse;
     pageNo: number;
@@ -42,10 +57,30 @@ export const QuestionPapersList = ({
     isAssessment: boolean;
     index?: number;
     sectionsForm?: UseFormReturn<SectionFormType>;
+    currentQuestionIndex: number;
+    setCurrentQuestionIndex: Dispatch<SetStateAction<number>>;
+    currentQuestionImageIndex: number;
+    setCurrentQuestionImageIndex: Dispatch<SetStateAction<number>>;
 }) => {
-    const { setIsSavedQuestionPaperDialogOpen } = useDialogStore();
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [questionId, setQuestionId] = useState<string>();
+    const {
+        setIsSavedQuestionPaperDialogOpen,
+        setIsUpdate,
+        setQuestionPaperId,
+        setIsMainQuestionPaperAddDialogOpen,
+    } = useDialogStore();
     const { instituteDetails } = useInstituteDetailsStore();
+    const { setOptions } = useFilterStore();
+    const { clearFilters } = useSelectedChips();
 
+    const fetch = async () => {
+        const data = await fetchStaticData();
+        setOptions(data);
+    };
+    useEffect(() => {
+        fetch();
+    }, []);
     const handleMarkQuestionPaperStatus = useMutation({
         mutationFn: ({
             status,
@@ -89,9 +124,9 @@ export const QuestionPapersList = ({
             );
 
             if (sectionsForm && index !== undefined) {
-                sectionsForm.setValue(`section.${index}`, {
-                    ...sectionsForm.getValues(`section.${index}`),
-                    adaptive_marking_for_each_question: transformQuestionsData.map((question) => ({
+                sectionsForm.setValue(
+                    `section.${index}.adaptive_marking_for_each_question`,
+                    transformQuestionsData.map((question) => ({
                         questionId: question.questionId,
                         questionName: question.questionName,
                         questionType: question.questionType,
@@ -107,7 +142,8 @@ export const QuestionPapersList = ({
                             min: "",
                         },
                     })),
-                });
+                );
+                sectionsForm.trigger(`section.${index}.adaptive_marking_for_each_question`);
             }
         },
         onError: (error: unknown) => {
@@ -138,14 +174,20 @@ export const QuestionPapersList = ({
         handleGetQuestionPaperData.mutate({ id });
     };
 
-    if (
-        handleMarkQuestionPaperStatus.status == "pending" ||
-        handleGetQuestionPaperData.status === "pending"
-    )
-        return <DashboardLoader />;
+    const navigateToAddTags = (id: string) => {
+        clearFilters();
+        setOpenDialog(true);
+        setQuestionId(id);
+    };
 
     return (
         <div className="mt-5 flex flex-col gap-5">
+            <AddTagDialogBox
+                heading="Add Tag"
+                onOpenChange={setOpenDialog}
+                open={openDialog}
+                questionId={questionId}
+            />
             {questionPaperList?.content?.map((questionsData, idx) => (
                 <div
                     key={idx}
@@ -185,6 +227,12 @@ export const QuestionPapersList = ({
                                             subject={questionsData.subject_id}
                                             level={questionsData.level_id}
                                             refetchData={refetchData}
+                                            currentQuestionIndex={currentQuestionIndex}
+                                            setCurrentQuestionIndex={setCurrentQuestionIndex}
+                                            currentQuestionImageIndex={currentQuestionImageIndex}
+                                            setCurrentQuestionImageIndex={
+                                                setCurrentQuestionImageIndex
+                                            }
                                         />
                                         <DropdownMenuItem
                                             onClick={() =>
@@ -194,29 +242,54 @@ export const QuestionPapersList = ({
                                         >
                                             Delete Question Paper
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => {
+                                                setIsMainQuestionPaperAddDialogOpen(true);
+                                                setIsUpdate(true);
+                                                setQuestionPaperId(questionsData.id);
+                                            }}
+                                            className="cursor-pointer"
+                                        >
+                                            Add More Questions
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
                         )}
                     </div>
-                    <div className="flex w-full items-center justify-start gap-8 text-xs">
-                        <p>
-                            Created On:{" "}
-                            {new Date(questionsData.created_on).toLocaleDateString() || "N/A"}
-                        </p>
-                        <p>
-                            Year/Class:{" "}
-                            {instituteDetails &&
-                                getLevelNameById(instituteDetails.levels, questionsData.level_id)}
-                        </p>
-                        <p>
-                            Subject:{" "}
-                            {instituteDetails &&
-                                getSubjectNameById(
-                                    instituteDetails.subjects,
-                                    questionsData.subject_id,
-                                )}
-                        </p>
+                    <div className="flex flex-row justify-center">
+                        <div className="flex w-full items-center justify-start gap-8 text-xs">
+                            <p>
+                                Created On:{" "}
+                                {new Date(questionsData.created_on).toLocaleDateString() || "N/A"}
+                            </p>
+                            <p>
+                                Year/Class:{" "}
+                                {instituteDetails &&
+                                    getLevelNameById(
+                                        instituteDetails.levels,
+                                        questionsData.level_id,
+                                    )}
+                            </p>
+                            <p>
+                                Subject:{" "}
+                                {instituteDetails &&
+                                    getSubjectNameById(
+                                        instituteDetails.subjects,
+                                        questionsData.subject_id,
+                                    )}
+                            </p>
+                        </div>
+                        <MyButton
+                            buttonType="secondary"
+                            scale="medium"
+                            onClick={() => {
+                                navigateToAddTags(questionsData.id);
+                            }}
+                        >
+                            <Plus />
+                            Add Tag
+                        </MyButton>
                     </div>
                 </div>
             ))}

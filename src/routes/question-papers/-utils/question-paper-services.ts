@@ -4,18 +4,20 @@ import {
     GET_QUESTION_PAPER_FILTERED_DATA,
     MARK_QUESTION_PAPER_STATUS,
     UPDATE_QUESTION_PAPER,
+    ADD_QUESTIONS_TO_QUESTION_PAPER,
 } from "@/constants/urls";
 import authenticatedAxiosInstance from "@/lib/auth/axiosInstance";
 import {
     transformFilterData,
     transformQuestionPaperData,
     transformQuestionPaperEditData,
+    transformQuestionPaperDataToAddQuestionToQuestionPaper,
 } from "./helper";
-import { FilterOption } from "@/types/question-paper-filter";
+import { FilterOption } from "@/types/assessments/question-paper-filter";
 import {
     MyQuestionPaperFormEditInterface,
     MyQuestionPaperFormInterface,
-} from "@/types/question-paper-form";
+} from "@/types/assessments/question-paper-form";
 
 export const addQuestionPaper = async (data: MyQuestionPaperFormInterface) => {
     try {
@@ -23,6 +25,21 @@ export const addQuestionPaper = async (data: MyQuestionPaperFormInterface) => {
             method: "POST",
             url: `${ADD_QUESTION_PAPER}`,
             data: transformQuestionPaperData(data),
+        });
+        return response?.data;
+    } catch (error: unknown) {
+        throw new Error(`${error}`);
+    }
+};
+export const addQuestionsToQuestionPaper = async (
+    data: MyQuestionPaperFormInterface,
+    id: string,
+) => {
+    try {
+        const response = await authenticatedAxiosInstance({
+            method: "POST",
+            url: `${ADD_QUESTIONS_TO_QUESTION_PAPER}`,
+            data: transformQuestionPaperDataToAddQuestionToQuestionPaper(data, id),
         });
         return response?.data;
     } catch (error: unknown) {
@@ -81,7 +98,6 @@ export const getQuestionPaperById = async (questionPaperId: string | undefined) 
 export const getQuestionPaperDataWithFilters = async (
     pageNo: number,
     pageSize: number,
-    instituteId: string,
     data: Record<string, FilterOption[]>,
 ) => {
     try {
@@ -90,7 +106,6 @@ export const getQuestionPaperDataWithFilters = async (
             url: `${GET_QUESTION_PAPER_FILTERED_DATA}`,
             params: {
                 pageNo,
-                instituteId,
                 pageSize,
             },
             data: transformFilterData(data),
@@ -104,12 +119,12 @@ export const getQuestionPaperDataWithFilters = async (
 export const getQuestionPaperFilteredData = (
     pageNo: number,
     pageSize: number,
-    instituteId: string,
+    // instituteId: string,
     data: Record<string, FilterOption[]>,
 ) => {
     return {
-        queryKey: ["GET_QUESTION_PAPER_FILTERED_DATA", pageNo, pageSize, instituteId, data],
-        queryFn: () => getQuestionPaperDataWithFilters(pageNo, pageSize, instituteId, data),
+        queryKey: ["GET_QUESTION_PAPER_FILTERED_DATA", pageNo, pageSize, data],
+        queryFn: () => getQuestionPaperDataWithFilters(pageNo, pageSize, data),
         staleTime: Infinity, // Prevent query from becoming stale
         cacheTime: Infinity, // Keep the query in the cache indefinitely
     };
