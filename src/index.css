@@ -177,6 +177,10 @@
     .sidebar-open {
         overflow: hidden;
     }
+
+    .dialog-height {
+        height: calc(100vh - 80px);
+    }
 }
 
 @layer utilities {

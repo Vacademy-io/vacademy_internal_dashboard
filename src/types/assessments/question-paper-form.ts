@@ -27,6 +27,10 @@ export interface MyQuestion {
     imageDetails?: MyImageDetail[]; // Optional array of image details
     singleChoiceOptions: MySingleChoiceOption[]; // Array of single choice options
     multipleChoiceOptions: MyMultipleChoiceOption[]; // Array of multiple choice options
+    validAnswers: number[];
+    decimals: number;
+    numericType: string;
+    // optionsJson: string | null; //Array for numerical answers
 }
 
 export interface MyImageDetail {

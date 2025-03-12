@@ -214,8 +214,6 @@ export const QuestionPaperUpload = ({
         isUpdate,
         questionPaperId: updateQuestionPaperId,
     } = useDialogStore();
-    console.log("updated :", isUpdate);
-    console.log("questionId :", updateQuestionPaperId);
     // Your mutation setup
     const handleSubmitFormData = useMutation({
         mutationFn: ({ data }: { data: MyQuestionPaperFormInterface }) => {
@@ -271,12 +269,12 @@ export const QuestionPaperUpload = ({
             setIsUploadFromDeviceDialogOpen(false);
         },
         onError: (error: unknown) => {
-            console.log("Error:", error);
             toast.error(error as string);
         },
     });
 
     function onSubmit(values: z.infer<typeof uploadQuestionPaperFormSchema>) {
+        console.log("values ", values);
         const getIdYearClass = getIdByLevelName(instituteDetails?.levels || [], values.yearClass);
         const getIdSubject = getIdBySubjectName(instituteDetails?.subjects || [], values.subject);
 
@@ -334,7 +332,11 @@ export const QuestionPaperUpload = ({
             setIsProgress(false);
         },
         onSuccess: (data) => {
+            console.log("api response data ", data);
+            console.log("line 1");
             const transformQuestionsData = transformResponseDataToMyQuestionsSchema(data);
+            console.log("line 2");
+            console.log("transformed data ", transformQuestionsData);
             setValue("questions", transformResponseDataToMyQuestionsSchema(data));
             if (index !== undefined) {
                 sectionsForm?.setValue(`section.${index}`, {
@@ -349,6 +351,9 @@ export const QuestionPaperUpload = ({
                             hrs: question.questionDuration.hrs,
                             min: question.questionDuration.min,
                         },
+                        decimals: question.decimals,
+                        numericType: question.numericType,
+                        validAnswers: question.validAnswers,
                     })),
                 });
             }

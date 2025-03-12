@@ -87,12 +87,12 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
                 .map((opt, idx) => (opt.isSelected ? idx.toString() : null))
                 .filter((idx) => idx !== null); // Remove null values
 
-            const auto_evaluation_json = JSON.stringify({
-                type: question.questionType === "MCQS" ? "MCQS" : "MCQM",
-                data: {
-                    correctOptionIds,
-                },
-            });
+            const auto_evaluation_json = getEvaluationJSON(
+                question,
+                correctOptionIds,
+                question.validAnswers,
+            );
+            const options_json = getOptionsJson(question);
 
             return {
                 id: null,
@@ -119,11 +119,60 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
                     Number(question.questionDuration.hrs || 0) * 60 +
                     Number(question.questionDuration.min || 0),
                 options, // Use the mapped options
+                options_json,
                 errors: [], // Assuming no errors are provided
                 warnings: [], // Assuming no warnings are provided
             };
         }),
     };
+}
+
+function getEvaluationJSON(
+    question: MyQuestion,
+    correctOptionIds?: (string | null)[],
+    validAnswers?: number[],
+): string {
+    switch (question.questionType) {
+        case "MCQS":
+            return JSON.stringify({
+                type: "MCQS",
+                data: {
+                    correctOptionIds,
+                },
+            });
+        case "MCQM":
+            return JSON.stringify({
+                type: "MCQM",
+                data: {
+                    correctOptionIds,
+                },
+            });
+        case "NUMERIC":
+            return JSON.stringify({
+                type: "NUMERIC",
+                data: {
+                    validAnswers,
+                },
+            });
+        default:
+            return "";
+    }
+}
+function getOptionsJson(question: MyQuestion): string | null {
+    console.log(question);
+    switch (question.questionType) {
+        case "MCQS":
+            return null;
+        case "MCQM":
+            return null;
+        case "NUMERIC":
+            return JSON.stringify({
+                decimals: question.decimals,
+                numericType: question.numericType,
+            });
+        default:
+            return null;
+    }
 }
 
 export function transformQuestionPaperDataToAddQuestionToQuestionPaper(
@@ -294,12 +343,12 @@ export function transformQuestionPaperEditData(
                 .map((opt, idx) => (opt.isSelected ? idx.toString() : null))
                 .filter((idx) => idx !== null);
 
-            const auto_evaluation_json = JSON.stringify({
-                type: question.questionType === "MCQS" ? "MCQS" : "MCQM",
-                data: {
-                    correctOptionIds,
-                },
-            });
+            const auto_evaluation_json = getEvaluationJSON(
+                question,
+                correctOptionIds,
+                question.validAnswers,
+            );
+            const options_json = getOptionsJson(question);
 
             return {
                 id: isNewQuestion ? null : question.questionId, // Set to null if it's a new question
@@ -323,6 +372,7 @@ export function transformQuestionPaperEditData(
                     content: question.explanation,
                 },
                 default_question_time_mins: null,
+                options_json,
                 options,
                 errors: [],
                 warnings: [],
@@ -355,14 +405,25 @@ export const getIdBySubjectName = (
 };
 
 export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[]) => {
+    console.log("in tranformation fuction ", data);
     return data.map((item) => {
         const correctOptionIds =
             JSON.parse(item.auto_evaluation_json)?.data?.correctOptionIds || [];
+        const validAnswers = JSON.parse(item.auto_evaluation_json)?.data?.validAnswers || [];
+        let decimals;
+        let numericType;
+        if (item.options_json) {
+            decimals = JSON.parse(item.options_json)?.decimals || 0;
+            numericType = JSON.parse(item.options_json)?.numeric_type || "";
+        }
+        console.log(item.options_json);
+        console.log(validAnswers);
+        console.log(item.options_json);
         const baseQuestion: MyQuestion = {
             questionId: item.id || item.preview_id || undefined,
             questionName: item.text?.content || "",
             explanation: item.explanation_text?.content || "",
-            questionType: item.question_type === "MCQS" ? "MCQS" : "MCQM",
+            questionType: item.question_type,
             questionPenalty: "",
             questionDuration: {
                 hrs: String(Math.floor((item.default_question_time_mins ?? 0) / 60)), // Extract hours
@@ -371,6 +432,9 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
             questionMark: "",
             singleChoiceOptions: [],
             multipleChoiceOptions: [],
+            validAnswers: [],
+            decimals,
+            numericType,
         };
 
         if (item.question_type === "MCQS") {
@@ -407,7 +471,10 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
                     isDeleted: false,
                 },
             });
+        } else if (item.question_type === "NUMERIC") {
+            baseQuestion.validAnswers = validAnswers;
         }
+        console.log(baseQuestion);
         return baseQuestion;
     });
 };

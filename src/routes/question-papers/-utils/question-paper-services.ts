@@ -20,6 +20,8 @@ import {
 } from "@/types/assessments/question-paper-form";
 
 export const addQuestionPaper = async (data: MyQuestionPaperFormInterface) => {
+    console.log("data ", data);
+    console.log("Transformed data ", transformQuestionPaperData(data));
     try {
         const response = await authenticatedAxiosInstance({
             method: "POST",

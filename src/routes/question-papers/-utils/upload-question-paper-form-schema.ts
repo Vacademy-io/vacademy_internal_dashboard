@@ -91,6 +91,12 @@ export const uploadQuestionPaperFormSchema = z.object({
                     }),
                 }),
             ),
+            // optionsJson: z.union([z.string(), z.null()]).optional(),
+            // optionsJson: z.object({Decimals:z.number() , NumricType:z.string()}),
+            decimals: z.number().optional(),
+            numericType: z.string().optional(),
+            validAnswers: z.union([z.array(z.number()), z.null()]).optional(),
+            questionResponseType: z.union([z.string(), z.null()]).optional(),
         }),
     ),
 });

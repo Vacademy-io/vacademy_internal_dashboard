@@ -283,7 +283,7 @@ export function QuestionPaperTemplate({
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="no-scrollbar !m-0 h-full !w-full !max-w-full !gap-0 overflow-y-auto !rounded-none !p-0 [&>button]:hidden">
+            <DialogContent className="no-scrollbar !m-0 !h-screen !w-full !max-w-full !gap-0 !overflow-hidden overflow-y-auto !rounded-none !p-0 [&>button]:hidden">
                 {isQuestionDataLoading ? (
                     <DashboardLoader />
                 ) : (
@@ -349,7 +349,7 @@ export function QuestionPaperTemplate({
                                 >
                                     Add Question
                                 </Button>
-                                <div className="flex h-[325vh] w-40 flex-col items-start justify-between gap-4 overflow-x-hidden overflow-y-scroll p-2">
+                                <div className="flex h-[325vh] w-40 flex-col items-start justify-between gap-4 overflow-x-hidden p-2">
                                     <Sortable
                                         value={fields}
                                         onMove={({ activeIndex, overIndex }) =>
@@ -415,6 +415,7 @@ export function QuestionPaperTemplate({
                                                                                     ) as
                                                                                         | "MCQS"
                                                                                         | "MCQM"
+                                                                                        | "NUMERIC"
                                                                                 }
                                                                                 props={{
                                                                                     form: form,
@@ -460,6 +461,7 @@ export function QuestionPaperTemplate({
                                     getValues(`questions.${currentQuestionIndex}.questionType`) as
                                         | "MCQS"
                                         | "MCQM"
+                                        | "NUMERIC"
                                 }
                                 props={{
                                     form: form,
@@ -467,7 +469,8 @@ export function QuestionPaperTemplate({
                                     setCurrentQuestionIndex: setCurrentQuestionIndex,
                                     currentQuestionImageIndex: currentQuestionImageIndex,
                                     setCurrentQuestionImageIndex: setCurrentQuestionImageIndex,
-                                    className: "ml-6 flex w-full flex-col gap-6 pr-6 pt-4",
+                                    className:
+                                        "dialog-height overflow-auto ml-6 flex w-full flex-col gap-6 pr-6 pt-4",
                                 }}
                             />
                         </div>
