@@ -187,7 +187,6 @@ export const SearchableFilterLevelDropdown = ({
                     levelId: selectedLevel.levelId,
                     levelName: selectedLevel.levelName,
                 });
-                console.log("chip");
                 addChip("LEVEL", selectedLevel.levelId, selectedLevel.levelName);
             }
         }
@@ -248,7 +247,6 @@ export const SearchableFilterStreamDropdown = ({
                     levelId: selectedStream.streamId,
                     levelName: selectedStream.streamName,
                 });
-                console.log("chip");
                 addChip("STREAM", selectedStream.streamId, selectedStream.streamName);
             }
         }

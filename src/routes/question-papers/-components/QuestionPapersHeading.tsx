@@ -7,6 +7,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { QuestionPaperUpload } from "./QuestionPaperUpload";
+import { QuestionTypeSelection } from "./QuestionTypeSelection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import useDialogStore from "../-global-states/question-paper-dialogue-close";
 import { Dispatch, SetStateAction } from "react";
@@ -72,15 +73,39 @@ export const QuestionPapersHeading = ({
                     <div className="mb-6 mt-2 flex flex-col items-center justify-center gap-6">
                         {/* Create Manually Dialog */}
                         <AlertDialog
-                            open={isManualQuestionPaperDialogOpen}
-                            onOpenChange={setIsManualQuestionPaperDialogOpen}
+                        // open={isManualQuestionPaperDialogOpen}
+                        // onOpenChange={setIsManualQuestionPaperDialogOpen}
                         >
                             <AlertDialogTrigger>
                                 <Button variant="outline" className="w-40 text-neutral-600">
                                     Create Manually
                                 </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="p-0">
+                            <AlertDialogContent className="h-[80%] overflow-y-auto p-0">
+                                <div className="sticky top-0 flex items-center justify-between rounded-md bg-primary-50">
+                                    <h1 className="rounded-sm p-4 font-bold text-primary-500">
+                                        Add Question
+                                    </h1>
+                                    <AlertDialogCancel
+                                        onClick={() => setIsManualQuestionPaperDialogOpen(false)}
+                                        className="border-none bg-primary-50 shadow-none hover:bg-primary-50"
+                                    >
+                                        <X className="text-neutral-600" />
+                                    </AlertDialogCancel>
+                                </div>
+                                <AlertDialog
+                                    open={isManualQuestionPaperDialogOpen}
+                                    onOpenChange={setIsManualQuestionPaperDialogOpen}
+                                >
+                                    <QuestionTypeSelection
+                                        currentQuestionIndex={currentQuestionIndex}
+                                        setCurrentQuestionIndex={setCurrentQuestionIndex}
+                                        currentQuestionImageIndex={currentQuestionImageIndex}
+                                        setCurrentQuestionImageIndex={setCurrentQuestionImageIndex}
+                                    ></QuestionTypeSelection>
+                                </AlertDialog>
+                            </AlertDialogContent>
+                            {/* <AlertDialogContent className="p-0">
                                 <div className="flex items-center justify-between rounded-md bg-primary-50">
                                     <h1 className="rounded-sm p-4 font-bold text-primary-500">
                                         Create Question Paper Manually
@@ -99,7 +124,7 @@ export const QuestionPapersHeading = ({
                                     currentQuestionImageIndex={currentQuestionImageIndex}
                                     setCurrentQuestionImageIndex={setCurrentQuestionImageIndex}
                                 />
-                            </AlertDialogContent>
+                            </AlertDialogContent> */}
                         </AlertDialog>
 
                         {/* Upload from Device Dialog */}

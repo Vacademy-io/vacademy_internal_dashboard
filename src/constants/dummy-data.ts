@@ -1,6 +1,7 @@
 export const QUESTION_TYPES = [
     "MCQS",
     "MCQM",
+    "NUMERIC",
     "Integer",
     "True or False",
     "Match the following",

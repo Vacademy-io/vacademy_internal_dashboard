@@ -7,6 +7,7 @@ export const LOGIN_URL = `${BASE_URL}/auth-service/v1/login-root`;
 export const SIGNUP_URL = `${BASE_URL}/auth-service/v1/signup-root`;
 export const REFRESH_TOKEN_URL = `${BASE_URL}/auth-service/v1/refresh-token`;
 export const UPLOAD_DOCS_FILE_URL = `${BASE_URL}/media-service/convert/doc-to-html`;
+// export const UPLOAD_DOCS_FILE_URL = `http://localhost:8075/media-service/convert/doc-to-html?questionIdentifier=(1.)&optionIdentifier=(a.)&answerIdentifier=Ans:&explanationIdentifier=Exp:`;
 export const INIT_INSTITUTE = `${BASE_URL}/admin-core-service/institute/v1/details/c70f40a5-e4d3-4b6c-a498-e612d0d4b133`;
 export const GET_STUDENTS = `${BASE_URL}/admin-core-service/institute/student/get/v1/all`;
 export const GET_ASSESSMENT_DETAILS = `${BASE_URL}/assessment-service/assessment/create/v1/status`;
@@ -19,6 +20,7 @@ export const GET_QUESTION_PAPER_FILTERED_DATA = `${BASE_URL}/assessment-service/
 export const MARK_QUESTION_PAPER_STATUS = `${BASE_URL}/assessment-service/question-paper/manage/v1/mark-status`;
 export const GET_QUESTION_PAPER_BY_ID = `${BASE_URL}/assessment-service/question-paper/view/v1/get-by-id`;
 export const ADD_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/public/manage/v1/add`;
+// export const ADD_QUESTION_PAPER = `http://localhost:8074/assessment-service/question-paper/public/manage/v1/add`;
 export const ADD_QUESTIONS_TO_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/public/manage/v1/update`;
 export const UPDATE_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/manage/v1/edit`;
 export const STEP1_ASSESSMENT_URL = `${BASE_URL}/assessment-service/assessment/basic/create/v1/submit`;

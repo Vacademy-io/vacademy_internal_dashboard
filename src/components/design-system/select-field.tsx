@@ -39,7 +39,6 @@ const SelectField: React.FC<SelectFieldProps> = ({
     disabled = false,
     className,
 }) => {
-    console.log(options);
     return (
         <FormField
             control={control as Control}
