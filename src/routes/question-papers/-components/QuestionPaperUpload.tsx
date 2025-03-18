@@ -30,6 +30,7 @@ import {
     EXPLANATION_LABELS,
     OPTIONS_LABELS,
     QUESTION_LABELS,
+    QuestionType,
 } from "@/constants/dummy-data";
 import { useFilterDataForAssesment } from "../-utils/useFiltersData";
 import { DashboardLoader } from "@/components/core/dashboard-loader";
@@ -48,6 +49,7 @@ interface QuestionPaperUploadProps {
     setCurrentQuestionIndex: Dispatch<SetStateAction<number>>;
     currentQuestionImageIndex: number;
     setCurrentQuestionImageIndex: Dispatch<SetStateAction<number>>;
+    firstQuestionType?: QuestionType;
 }
 
 export const QuestionPaperUpload = ({
@@ -58,6 +60,7 @@ export const QuestionPaperUpload = ({
     setCurrentQuestionIndex,
     currentQuestionImageIndex,
     setCurrentQuestionImageIndex,
+    firstQuestionType = QuestionType.MCQS,
 }: QuestionPaperUploadProps) => {
     const { instituteDetails } = useInstituteDetailsStore();
 
@@ -84,7 +87,7 @@ export const QuestionPaperUpload = ({
                     questionId: "1",
                     questionName: "",
                     explanation: "",
-                    questionType: "MCQS",
+                    questionType: firstQuestionType,
                     questionPenalty: "",
                     questionDuration: {
                         hrs: "",
@@ -260,6 +263,7 @@ export const QuestionPaperUpload = ({
                             hrs: question.questionDuration.hrs,
                             min: question.questionDuration.min,
                         },
+                        parentRichText: question.parentRichTextContent,
                     })),
                 );
                 sectionsForm?.trigger(`section.${index}.adaptive_marking_for_each_question`);
@@ -274,6 +278,7 @@ export const QuestionPaperUpload = ({
     });
 
     function onSubmit(values: z.infer<typeof uploadQuestionPaperFormSchema>) {
+        console.log("get questions ", getValues("questions"));
         console.log("values ", values);
         const getIdYearClass = getIdByLevelName(instituteDetails?.levels || [], values.yearClass);
         const getIdSubject = getIdBySubjectName(instituteDetails?.subjects || [], values.subject);
@@ -337,7 +342,8 @@ export const QuestionPaperUpload = ({
             const transformQuestionsData = transformResponseDataToMyQuestionsSchema(data);
             console.log("line 2");
             console.log("transformed data ", transformQuestionsData);
-            setValue("questions", transformResponseDataToMyQuestionsSchema(data));
+            setValue("questions", transformQuestionsData);
+            console.log("question ", getValues("questions"));
             if (index !== undefined) {
                 sectionsForm?.setValue(`section.${index}`, {
                     ...sectionsForm?.getValues(`section.${index}`), // Keep other section data intact
@@ -354,6 +360,7 @@ export const QuestionPaperUpload = ({
                         decimals: question.decimals,
                         numericType: question.numericType,
                         validAnswers: question.validAnswers,
+                        parentRichText: question.parentRichTextContent,
                     })),
                 });
             }

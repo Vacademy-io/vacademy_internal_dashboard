@@ -30,6 +30,7 @@ export interface MyQuestion {
     validAnswers: number[];
     decimals: number;
     numericType: string;
+    parentRichTextContent: string | null;
     // optionsJson: string | null; //Array for numerical answers
 }
 

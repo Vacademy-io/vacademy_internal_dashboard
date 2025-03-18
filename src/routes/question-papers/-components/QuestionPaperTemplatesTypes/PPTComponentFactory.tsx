@@ -3,8 +3,12 @@ import { SingleCorrectQuestionPaperTemplatePPTView } from "./MCQ(Single Correct)
 import { NumericQuestionPaperTemplatePPTView } from "./NumericType/NumericQuestionPaperTemplatePPTView";
 import { QuestionPaperTemplateFormProps } from "../../-utils/question-paper-template-form";
 import { MultipleCorrectQuestionPaperTemplatePPTView } from "./MCQ(Multiple Correct)/MultipleCorrectQuestionPaperTemplatePPTView";
+import { ComprehensiveSingleCorrectQuestionPaperTemplatePPTView } from "./Comprehensive MCQ(Single Correct)/ComprehensiveSingleCorrectQuestionPaperTemplatePPTView";
+import { QuestionType } from "@/constants/dummy-data";
+import { ComprehensiveMultipleCorrectQuestionPaperTemplatePPTView } from "./Comprehensive MCQ(Multiple Correct)/ComprehensiveMultipleCorrectQuestionPaperTemplatePPTView";
+import { ComprehensiveNumericQuestionPaperTemplatePPTView } from "./ComprehensiveNumericType/ComprehensiveNumericQuestionPaperTemplatePPTView";
 
-type PPTComponentType = "MCQS" | "MCQM" | "NUMERIC";
+type PPTComponentType = QuestionType;
 
 type PPTComponent = (props: QuestionPaperTemplateFormProps) => React.ReactElement;
 
@@ -12,6 +16,9 @@ const PPTComponentsMap: Record<PPTComponentType, PPTComponent> = {
     MCQS: SingleCorrectQuestionPaperTemplatePPTView,
     MCQM: MultipleCorrectQuestionPaperTemplatePPTView,
     NUMERIC: NumericQuestionPaperTemplatePPTView,
+    CMCQS: ComprehensiveSingleCorrectQuestionPaperTemplatePPTView,
+    CMCQM: ComprehensiveMultipleCorrectQuestionPaperTemplatePPTView,
+    CNUMERIC: ComprehensiveNumericQuestionPaperTemplatePPTView,
 };
 
 export const PPTComponentFactory = (params: {

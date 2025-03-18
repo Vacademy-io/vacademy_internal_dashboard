@@ -19,6 +19,7 @@ export const STUDENT_CSV_UPLOAD_URL = `${BASE_URL}/admin-core-service/institute/
 export const GET_QUESTION_PAPER_FILTERED_DATA = `${BASE_URL}/assessment-service/question-paper/public/view/v1/get-with-filters`;
 export const MARK_QUESTION_PAPER_STATUS = `${BASE_URL}/assessment-service/question-paper/manage/v1/mark-status`;
 export const GET_QUESTION_PAPER_BY_ID = `${BASE_URL}/assessment-service/question-paper/view/v1/get-by-id`;
+// export const GET_QUESTION_PAPER_BY_ID = `http://localhost:8074/assessment-service/question-paper/view/v1/get-by-id`;
 export const ADD_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/public/manage/v1/add`;
 // export const ADD_QUESTION_PAPER = `http://localhost:8074/assessment-service/question-paper/public/manage/v1/add`;
 export const ADD_QUESTIONS_TO_QUESTION_PAPER = `${BASE_URL}/assessment-service/question-paper/public/manage/v1/update`;

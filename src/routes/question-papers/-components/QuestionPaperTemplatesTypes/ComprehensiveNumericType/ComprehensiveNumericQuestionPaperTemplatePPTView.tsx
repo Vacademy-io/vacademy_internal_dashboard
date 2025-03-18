@@ -12,7 +12,7 @@ import "react-quill/dist/quill.snow.css";
 import { PPTViewQuillEditor } from "@/components/quill/PPTViewQuillEditor";
 import { QuestionPaperTemplateFormProps } from "../../../-utils/question-paper-template-form";
 
-export const NumericQuestionPaperTemplatePPTView = ({
+export const ComprehensiveNumericQuestionPaperTemplatePPTView = ({
     form,
     currentQuestionIndex,
     className,

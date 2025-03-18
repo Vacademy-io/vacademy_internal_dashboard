@@ -3,8 +3,12 @@ import { QuestionPaperTemplateFormProps } from "../../-utils/question-paper-temp
 import { SingleCorrectQuestionPaperTemplateMainView } from "./MCQ(Single Correct)/SingleCorrectQuestionPaperTemplateMainView";
 import { NumericQuestionPaperTemplateMainView } from "./NumericType/NumericQuestionPaperTemplateMainView";
 import { MultipleCorrectQuestionPaperTemplateMainView } from "./MCQ(Multiple Correct)/MultipleCorrectQuestionPaperTemplateMainView";
+import { ComprehensiveSingleCorrectQuestionPaperTemplateMainView } from "./Comprehensive MCQ(Single Correct)/ComprehensiveSingleCorrectQuestionPaperTemplateMainView";
+import { QuestionType } from "@/constants/dummy-data";
+import { ComprehensiveMultipleCorrectQuestionPaperTemplateMainView } from "./Comprehensive MCQ(Multiple Correct)/ComprehensiveMultipleCorrectQuestionPaperTemplateMainView";
+import { ComprehensiveNumericQuestionPaperTemplateMainView } from "./ComprehensiveNumericType/ComprehensiveNumericQuestionPaperTemplateMainView";
 
-type MainViewComponentType = "MCQS" | "MCQM" | "NUMERIC";
+type MainViewComponentType = QuestionType;
 
 type MainViewComponent = (props: QuestionPaperTemplateFormProps) => React.ReactElement;
 
@@ -12,6 +16,9 @@ const MainViewComponentsMap: Record<MainViewComponentType, MainViewComponent> = 
     MCQS: SingleCorrectQuestionPaperTemplateMainView,
     MCQM: MultipleCorrectQuestionPaperTemplateMainView,
     NUMERIC: NumericQuestionPaperTemplateMainView,
+    CMCQS: ComprehensiveSingleCorrectQuestionPaperTemplateMainView,
+    CMCQM: ComprehensiveMultipleCorrectQuestionPaperTemplateMainView,
+    CNUMERIC: ComprehensiveNumericQuestionPaperTemplateMainView,
 };
 
 export const MainViewComponentFactory = (params: {

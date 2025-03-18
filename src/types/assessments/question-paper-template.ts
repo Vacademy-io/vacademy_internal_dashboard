@@ -111,7 +111,7 @@ export interface QuestionResponse {
     explanation_text: ExplanationText;
     default_question_time_mins: number | null;
     options: OptionText[];
-    parent_rich_text_id: string | null;
+    parent_rich_text: TextContent | null;
     errors: string[];
     warnings: string[];
 }
