@@ -43,6 +43,7 @@ const sectionDetailsSchema = z.object({
                         hrs: z.string(),
                         min: z.string(),
                     }),
+                    pareentRichText: z.union([z.string(), z.null()]).optional(),
                 }),
             ),
         }),

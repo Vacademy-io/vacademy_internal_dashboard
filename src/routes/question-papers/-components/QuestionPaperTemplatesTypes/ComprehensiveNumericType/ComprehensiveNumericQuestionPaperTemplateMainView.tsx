@@ -15,7 +15,7 @@ import { QUESTION_TYPES, NUMERIC_TYPES } from "@/constants/dummy-data";
 import { MyInput } from "@/components/design-system/input";
 import { useState, useEffect } from "react";
 
-export const NumericQuestionPaperTemplateMainView = ({
+export const ComprehensiveNumericQuestionPaperTemplateMainView = ({
     form,
     currentQuestionIndex,
     currentQuestionImageIndex,

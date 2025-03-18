@@ -1,11 +1,26 @@
 export const QUESTION_TYPES = [
-    "MCQS",
-    "MCQM",
-    "NUMERIC",
-    "Integer",
-    "True or False",
-    "Match the following",
-    "Short answer",
+    { code: "MCQS", display: "Multiple Choice (Single)" },
+    { code: "MCQM", display: "Multiple Choice (Multiple)" },
+    { code: "NUMERIC", display: "Numeric Answer" },
+    { code: "CMCQS", display: "Comprehensive Multiple Choice (Single)" },
+    { code: "CMCQM", display: "Comprehensive Multiple Choice (Multiple)" },
+    { code: "CNUMERIC", display: "Comprehensive Numeric Answer" },
+];
+
+export enum QuestionType {
+    MCQS = "MCQS",
+    MCQM = "MCQM",
+    NUMERIC = "NUMERIC",
+    CMCQS = "CMCQS",
+    CMCQM = "CMCQM",
+    CNUMERIC = "CNUMERIC",
+}
+
+export const NUMERIC_TYPES = [
+    "SINGLE_DIGIT_NON_NEGATIVE_INTEGER", // 0 - 9 integers
+    "INTEGER", // positive and negative integers
+    "POSITIVE_INTEGER", // all positive integers
+    "DECIMAL",
 ];
 
 export const QUESTION_LABELS = ["(1.)", "1.)", "(1)", "1)"];

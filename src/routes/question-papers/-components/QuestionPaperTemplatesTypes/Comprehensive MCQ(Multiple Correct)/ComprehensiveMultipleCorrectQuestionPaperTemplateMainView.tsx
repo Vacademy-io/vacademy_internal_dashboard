@@ -14,7 +14,7 @@ import { formatStructure } from "../../../-utils/helper";
 import { OptionImagePreview } from "../../options/MCQ(Multiple Correct)/OptionImagePreview";
 import { QUESTION_TYPES } from "@/constants/dummy-data";
 
-export const MultipleCorrectQuestionPaperTemplateMainView = ({
+export const ComprehensiveMultipleCorrectQuestionPaperTemplateMainView = ({
     form,
     currentQuestionIndex,
     currentQuestionImageIndex,
@@ -135,26 +135,24 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                     </PopoverContent>
                 </Popover>
             </div>
-            {getValues(`questions.${currentQuestionIndex}.parentRichTextContent`) && (
-                <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
-                    <span>Comprehension Text</span>
-                    <FormField
-                        control={control}
-                        name={`questions.${currentQuestionIndex}.parentRichTextContent`}
-                        render={({ field }) => (
-                            <FormItem className="w-full">
-                                <FormControl>
-                                    <MainViewQuillEditor
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-            )}
+            <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
+                <span>Comprehension Text</span>
+                <FormField
+                    control={control}
+                    name={`questions.${currentQuestionIndex}.parentRichTextContent`}
+                    render={({ field }) => (
+                        <FormItem className="w-full">
+                            <FormControl>
+                                <MainViewQuillEditor
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
             <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
                 <span>
                     Question&nbsp;

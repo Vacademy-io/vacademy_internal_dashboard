@@ -7,6 +7,7 @@ import {
     MyQuestionPaperFormInterface,
 } from "@/types/assessments/question-paper-form";
 import { useMutation } from "@tanstack/react-query";
+import { QuestionType } from "@/constants/dummy-data";
 
 export function formatStructure(structure: string, value: string | number): string {
     // If structure does not contain parentheses, just replace the number/letter with the value
@@ -31,6 +32,7 @@ export function transformFilterData(data: Record<string, FilterOption[]>) {
 }
 
 export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
+    console.log("before url call data ", data);
     return {
         title: data.title,
         institute_id: INSTITUTE_ID, // Assuming there's no direct mapping for institute_id
@@ -38,7 +40,8 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
         subject_id: data.subject, // Assuming there's no direct mapping for subject_id
         questions: data?.questions?.map((question) => {
             const options =
-                question.questionType === "MCQS"
+                question.questionType === QuestionType.MCQS ||
+                question.questionType === QuestionType.CMCQS
                     ? question.singleChoiceOptions.map((opt, idx) => ({
                           id: null, // Assuming no direct mapping for option ID
                           preview_id: idx, // Using index as preview_id
@@ -80,7 +83,8 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
 
             // Extract correct option indices as strings
             const correctOptionIds = (
-                question.questionType === "MCQS"
+                question.questionType === QuestionType.MCQS ||
+                question.questionType === QuestionType.CMCQS
                     ? question.singleChoiceOptions
                     : question.multipleChoiceOptions
             )
@@ -93,6 +97,15 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
                 question.validAnswers,
             );
             const options_json = getOptionsJson(question);
+            const parent_rich_text = question.parentRichTextContent
+                ? {
+                      id: null,
+                      type: "HTML",
+                      content: question.parentRichTextContent,
+                  }
+                : null;
+
+            const questionTypeForBackend = getQuestionType(question.questionType);
 
             return {
                 id: null,
@@ -106,7 +119,7 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
                 created_at: null,
                 updated_at: null,
                 question_response_type: null, // Assuming no direct mapping for response type
-                question_type: question.questionType,
+                question_type: questionTypeForBackend,
                 access_level: null, // Assuming no direct mapping for access level
                 auto_evaluation_json, // Add auto_evaluation_json
                 evaluation_type: null, // Assuming no direct mapping for evaluation type
@@ -119,6 +132,7 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
                     Number(question.questionDuration.hrs || 0) * 60 +
                     Number(question.questionDuration.min || 0),
                 options, // Use the mapped options
+                parent_rich_text,
                 options_json,
                 errors: [], // Assuming no errors are provided
                 warnings: [], // Assuming no warnings are provided
@@ -140,6 +154,13 @@ function getEvaluationJSON(
                     correctOptionIds,
                 },
             });
+        case "CMCQS":
+            return JSON.stringify({
+                type: "MCQS",
+                data: {
+                    correctOptionIds,
+                },
+            });
         case "MCQM":
             return JSON.stringify({
                 type: "MCQM",
@@ -147,7 +168,21 @@ function getEvaluationJSON(
                     correctOptionIds,
                 },
             });
+        case "CMCQM":
+            return JSON.stringify({
+                type: "MCQM",
+                data: {
+                    correctOptionIds,
+                },
+            });
         case "NUMERIC":
+            return JSON.stringify({
+                type: "NUMERIC",
+                data: {
+                    validAnswers,
+                },
+            });
+        case "CNUMERIC":
             return JSON.stringify({
                 type: "NUMERIC",
                 data: {
@@ -243,6 +278,14 @@ export function transformQuestionPaperDataToAddQuestionToQuestionPaper(
                 },
             });
 
+            const parent_rich_text = question.parentRichTextContent
+                ? {
+                      id: null,
+                      type: "HTML",
+                      content: question.parentRichTextContent,
+                  }
+                : null;
+
             return {
                 id: null,
                 preview_id: question.questionId, // Assuming no direct mapping for preview_id
@@ -268,6 +311,7 @@ export function transformQuestionPaperDataToAddQuestionToQuestionPaper(
                     Number(question.questionDuration.hrs || 0) * 60 +
                     Number(question.questionDuration.min || 0),
                 options, // Use the mapped options
+                parent_rich_text,
                 errors: [], // Assuming no errors are provided
                 warnings: [], // Assuming no warnings are provided
             };
@@ -349,6 +393,15 @@ export function transformQuestionPaperEditData(
                 question.validAnswers,
             );
             const options_json = getOptionsJson(question);
+            const parent_rich_text = question.parentRichTextContent
+                ? {
+                      id: null,
+                      type: "HTML",
+                      content: question.parentRichTextContent,
+                  }
+                : null;
+
+            const questionTypeForBackend = getQuestionType(question.questionType);
 
             return {
                 id: isNewQuestion ? null : question.questionId, // Set to null if it's a new question
@@ -362,7 +415,7 @@ export function transformQuestionPaperEditData(
                 created_at: null,
                 updated_at: null,
                 question_response_type: null,
-                question_type: question.questionType,
+                question_type: questionTypeForBackend,
                 access_level: null,
                 auto_evaluation_json,
                 evaluation_type: null,
@@ -373,6 +426,7 @@ export function transformQuestionPaperEditData(
                 },
                 default_question_time_mins: null,
                 options_json,
+                parent_rich_text,
                 options,
                 errors: [],
                 warnings: [],
@@ -380,6 +434,14 @@ export function transformQuestionPaperEditData(
         }),
     };
 }
+
+const getQuestionType = (type: string): string => {
+    console.log(type);
+    if (type === "CMCQS") return "MCQS";
+    else if (type === "CMCQM") return "MCQM";
+    else if (type === "CNUMERIC") return "NUMERIC";
+    else return type;
+};
 
 export const getLevelNameById = (levels: Level[], id: string | null): string => {
     const level = levels.find((item) => item.id === id);
@@ -416,9 +478,7 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
             decimals = JSON.parse(item.options_json)?.decimals || 0;
             numericType = JSON.parse(item.options_json)?.numeric_type || "";
         }
-        console.log(item.options_json);
-        console.log(validAnswers);
-        console.log(item.options_json);
+        console.log(item.parent_rich_text);
         const baseQuestion: MyQuestion = {
             questionId: item.id || item.preview_id || undefined,
             questionName: item.text?.content || "",
@@ -435,6 +495,7 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
             validAnswers: [],
             decimals,
             numericType,
+            parentRichTextContent: item.parent_rich_text?.content || null,
         };
 
         if (item.question_type === "MCQS") {

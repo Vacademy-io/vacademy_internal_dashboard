@@ -11,10 +11,10 @@ import { MainViewQuillEditor } from "@/components/quill/MainViewQuillEditor";
 import QuestionImagePreviewDialogue from "../../QuestionImagePreviewDialogue";
 import { QuestionPaperTemplateFormProps } from "../../../-utils/question-paper-template-form";
 import { formatStructure } from "../../../-utils/helper";
-import { OptionImagePreview } from "../../options/MCQ(Multiple Correct)/OptionImagePreview";
+import { OptionImagePreview } from "../../options/MCQ(Single Correct)/OptionImagePreview";
 import { QUESTION_TYPES } from "@/constants/dummy-data";
 
-export const MultipleCorrectQuestionPaperTemplateMainView = ({
+export const ComprehensiveSingleCorrectQuestionPaperTemplateMainView = ({
     form,
     currentQuestionIndex,
     currentQuestionImageIndex,
@@ -22,7 +22,6 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
     className,
 }: QuestionPaperTemplateFormProps) => {
     const { control, getValues, setValue } = form;
-
     const answersType = getValues("answersType") || "Answer:";
     const explanationsType = getValues("explanationsType") || "Explanation:";
     const optionsType = getValues("optionsType") || "";
@@ -31,35 +30,54 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
     const imageDetails = getValues(`questions.${currentQuestionIndex}.imageDetails`);
     const allQuestions = getValues("questions") || [];
 
-    const option1 = getValues(`questions.${currentQuestionIndex}.multipleChoiceOptions.${0}`);
-    const option2 = getValues(`questions.${currentQuestionIndex}.multipleChoiceOptions.${1}`);
-    const option3 = getValues(`questions.${currentQuestionIndex}.multipleChoiceOptions.${2}`);
-    const option4 = getValues(`questions.${currentQuestionIndex}.multipleChoiceOptions.${3}`);
+    const option1 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${0}`);
+    const option2 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${1}`);
+    const option3 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${2}`);
+    const option4 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${3}`);
 
-    const handleRemovePicture = (index: number) => {
-        setValue(
-            `questions.${currentQuestionIndex}.imageDetails`,
-            imageDetails?.filter((_, i) => i !== index),
+    const handleRemovePicture = (currentQuestionImageIndex: number) => {
+        // Filter out the image to be removed
+        const updatedImageDetails = imageDetails?.filter(
+            (_, index: number) => index !== currentQuestionImageIndex,
         );
+
+        // Update the value with the filtered array
+        setValue(`questions.${currentQuestionIndex}.imageDetails`, updatedImageDetails);
     };
 
     const handleRemovePictureInOptions = (optionIndex: number) => {
         setValue(
-            `questions.${currentQuestionIndex}.multipleChoiceOptions.${optionIndex}.image.isDeleted`,
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.isDeleted`,
             true,
         );
         setValue(
-            `questions.${currentQuestionIndex}.multipleChoiceOptions.${optionIndex}.image.imageFile`,
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.imageFile`,
             "",
         );
         setValue(
-            `questions.${currentQuestionIndex}.multipleChoiceOptions.${optionIndex}.image.imageName`,
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.imageName`,
             "",
         );
         setValue(
-            `questions.${currentQuestionIndex}.multipleChoiceOptions.${optionIndex}.image.imageTitle`,
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.imageTitle`,
             "",
         );
+    };
+
+    const handleOptionChange = (optionIndex: number) => {
+        const options = [0, 1, 2, 3];
+
+        // Check current state of the selected option
+        const isCurrentlySelected = getValues(
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.isSelected`,
+        );
+
+        options.forEach((option) => {
+            setValue(
+                `questions.${currentQuestionIndex}.singleChoiceOptions.${option}.isSelected`,
+                option === optionIndex ? !isCurrentlySelected : false, // Toggle only the selected option
+            );
+        });
     };
 
     if (allQuestions.length === 0) {
@@ -135,26 +153,24 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                     </PopoverContent>
                 </Popover>
             </div>
-            {getValues(`questions.${currentQuestionIndex}.parentRichTextContent`) && (
-                <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
-                    <span>Comprehension Text</span>
-                    <FormField
-                        control={control}
-                        name={`questions.${currentQuestionIndex}.parentRichTextContent`}
-                        render={({ field }) => (
-                            <FormItem className="w-full">
-                                <FormControl>
-                                    <MainViewQuillEditor
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-            )}
+            <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
+                <span>Comprehension Text</span>
+                <FormField
+                    control={control}
+                    name={`questions.${currentQuestionIndex}.parentRichTextContent`}
+                    render={({ field }) => (
+                        <FormItem className="w-full">
+                            <FormControl>
+                                <MainViewQuillEditor
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
             <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
                 <span>
                     Question&nbsp;
@@ -218,7 +234,6 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                             </div>
                         );
                     })}
-
                 {Array.isArray(imageDetails) && imageDetails.length < 4 && (
                     <QuestionImagePreviewDialogue
                         form={form}
@@ -258,8 +273,8 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                                             <OptionImagePreview
                                                 form={form}
                                                 option={0}
-                                                isUploadedAgain={true}
                                                 currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
                                             />
                                             <Button
                                                 variant="outline"
@@ -274,7 +289,7 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                             ) : (
                                 <FormField
                                     control={control}
-                                    name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${0}.name`}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${0}.name`}
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
@@ -299,14 +314,14 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
                                 control={control}
-                                name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${0}.isSelected`}
+                                name={`questions.${currentQuestionIndex}.singleChoiceOptions.${0}.isSelected`}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
                                             <Checkbox
                                                 checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                className={`mt-1 size-5 border-2 shadow-none ${
+                                                onCheckedChange={() => handleOptionChange(0)}
+                                                className={`mt-1 size-5 rounded-xl border-2 shadow-none ${
                                                     field.value
                                                         ? "border-none bg-green-500 text-white" // Blue background and red tick when checked
                                                         : "" // Default styles when unchecked
@@ -345,8 +360,8 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                                             <OptionImagePreview
                                                 form={form}
                                                 option={1}
-                                                isUploadedAgain={true}
                                                 currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
                                             />
                                             <Button
                                                 variant="outline"
@@ -361,7 +376,7 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                             ) : (
                                 <FormField
                                     control={control}
-                                    name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${1}.name`}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${1}.name`}
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
@@ -386,14 +401,14 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
                                 control={control}
-                                name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${1}.isSelected`}
+                                name={`questions.${currentQuestionIndex}.singleChoiceOptions.${1}.isSelected`}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
                                             <Checkbox
                                                 checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                className={`mt-1 size-5 border-2 shadow-none ${
+                                                onCheckedChange={() => handleOptionChange(1)}
+                                                className={`mt-1 size-5 rounded-xl border-2 shadow-none ${
                                                     field.value
                                                         ? "border-none bg-green-500 text-white" // Blue background and red tick when checked
                                                         : "" // Default styles when unchecked
@@ -434,8 +449,8 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                                             <OptionImagePreview
                                                 form={form}
                                                 option={2}
-                                                isUploadedAgain={true}
                                                 currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
                                             />
                                             <Button
                                                 variant="outline"
@@ -450,7 +465,7 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                             ) : (
                                 <FormField
                                     control={control}
-                                    name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${2}.name`}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${2}.name`}
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
@@ -475,14 +490,14 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
                                 control={control}
-                                name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${2}.isSelected`}
+                                name={`questions.${currentQuestionIndex}.singleChoiceOptions.${2}.isSelected`}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
                                             <Checkbox
                                                 checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                className={`mt-1 size-5 border-2 shadow-none ${
+                                                onCheckedChange={() => handleOptionChange(2)}
+                                                className={`mt-1 size-5 rounded-xl border-2 shadow-none ${
                                                     field.value
                                                         ? "border-none bg-green-500 text-white" // Blue background and red tick when checked
                                                         : "" // Default styles when unchecked
@@ -521,8 +536,8 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                                             <OptionImagePreview
                                                 form={form}
                                                 option={3}
-                                                isUploadedAgain={true}
                                                 currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
                                             />
                                             <Button
                                                 variant="outline"
@@ -537,7 +552,7 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                             ) : (
                                 <FormField
                                     control={control}
-                                    name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${3}.name`}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${3}.name`}
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
@@ -562,14 +577,14 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
                                 control={control}
-                                name={`questions.${currentQuestionIndex}.multipleChoiceOptions.${3}.isSelected`}
+                                name={`questions.${currentQuestionIndex}.singleChoiceOptions.${3}.isSelected`}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
                                             <Checkbox
                                                 checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                className={`mt-1 size-5 border-2 shadow-none ${
+                                                onCheckedChange={() => handleOptionChange(3)}
+                                                className={`mt-1 size-5 rounded-xl border-2 shadow-none ${
                                                     field.value
                                                         ? "border-none bg-green-500 text-white" // Blue background and red tick when checked
                                                         : "" // Default styles when unchecked
@@ -584,8 +599,7 @@ export const MultipleCorrectQuestionPaperTemplateMainView = ({
                     </div>
                 </div>
             </div>
-
-            <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
+            <div className="mb-6 flex w-full flex-col !flex-nowrap items-start gap-1">
                 <span>{explanationsType}</span>
                 <FormField
                     control={control}
