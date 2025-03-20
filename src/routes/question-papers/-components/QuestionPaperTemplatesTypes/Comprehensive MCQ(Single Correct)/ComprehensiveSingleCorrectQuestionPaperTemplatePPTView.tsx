@@ -1,56 +1,67 @@
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { DotsThree } from "phosphor-react";
+import { Sliders, TrashSimple, X } from "phosphor-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import "react-quill/dist/quill.snow.css";
-import { PPTViewQuillEditor } from "@/components/quill/PPTViewQuillEditor";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { PopoverClose } from "@radix-ui/react-popover";
+import SelectField from "@/components/design-system/select-field";
+import CustomInput from "@/components/design-system/custom-input";
+import { MainViewQuillEditor } from "@/components/quill/MainViewQuillEditor";
+import QuestionImagePreviewDialogue from "../../QuestionImagePreviewDialogue";
 import { QuestionPaperTemplateFormProps } from "../../../-utils/question-paper-template-form";
 import { formatStructure } from "../../../-utils/helper";
+import { OptionImagePreview } from "../../options/MCQ(Single Correct)/OptionImagePreview";
+import { QUESTION_TYPES } from "@/constants/dummy-data";
 
 export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
     form,
     currentQuestionIndex,
+    currentQuestionImageIndex,
+    setCurrentQuestionImageIndex,
     className,
 }: QuestionPaperTemplateFormProps) => {
     const { control, getValues, setValue } = form;
-
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false); // State to track dropdown visibility
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown open state
-
+    const answersType = getValues("answersType") || "Answer:";
+    const explanationsType = getValues("explanationsType") || "Explanation:";
     const optionsType = getValues("optionsType") || "";
+    const questionsType = getValues("questionsType") || "";
+
     const imageDetails = getValues(`questions.${currentQuestionIndex}.imageDetails`);
     const allQuestions = getValues("questions") || [];
+
     const option1 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${0}`);
     const option2 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${1}`);
     const option3 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${2}`);
     const option4 = getValues(`questions.${currentQuestionIndex}.singleChoiceOptions.${3}`);
 
-    const handleDeleteSlide = () => {
-        allQuestions.splice(currentQuestionIndex, 1);
-        setValue("questions", allQuestions);
+    const handleRemovePicture = (currentQuestionImageIndex: number) => {
+        // Filter out the image to be removed
+        const updatedImageDetails = imageDetails?.filter(
+            (_, index: number) => index !== currentQuestionImageIndex,
+        );
+
+        // Update the value with the filtered array
+        setValue(`questions.${currentQuestionIndex}.imageDetails`, updatedImageDetails);
     };
 
-    const handleDuplicateSlide = () => {
-        const questionToDuplicate = allQuestions[currentQuestionIndex];
-        if (questionToDuplicate) {
-            const duplicatedQuestion = {
-                ...questionToDuplicate,
-                questionId: questionToDuplicate.questionId || "",
-                questionName: questionToDuplicate.questionName || "",
-                explanation: questionToDuplicate.explanation || "",
-                imageDetails: questionToDuplicate.imageDetails || [],
-                singleChoiceOptions: questionToDuplicate.singleChoiceOptions || [],
-            };
-            allQuestions.splice(currentQuestionIndex, 0, duplicatedQuestion);
-            setValue("questions", allQuestions);
-        }
+    const handleRemovePictureInOptions = (optionIndex: number) => {
+        setValue(
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.isDeleted`,
+            true,
+        );
+        setValue(
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.imageFile`,
+            "",
+        );
+        setValue(
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.imageName`,
+            "",
+        );
+        setValue(
+            `questions.${currentQuestionIndex}.singleChoiceOptions.${optionIndex}.image.imageTitle`,
+            "",
+        );
     };
 
     const handleOptionChange = (optionIndex: number) => {
@@ -69,55 +80,177 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
         });
     };
 
+    if (allQuestions.length === 0) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center">
+                <h1>Please add a question to show question details</h1>
+            </div>
+        );
+    }
+
     return (
-        <div
-            className={className}
-            onMouseEnter={() => setIsDropdownVisible(true)}
-            onMouseLeave={() => !isDropdownOpen && setIsDropdownVisible(false)}
-        >
+        <div className={className}>
+            <div className="-mb-8 flex justify-end">
+                <Popover>
+                    <PopoverTrigger>
+                        <Button variant="outline" type="button" className="cursor-pointer px-3">
+                            <Sliders size={32} />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <div className="mb-2 flex flex-col gap-4">
+                            <div className="flex w-full items-center justify-between">
+                                <h1 className="text-primary-500">Questions Settings</h1>
+                                <PopoverClose>
+                                    <X size={16} />
+                                </PopoverClose>
+                            </div>
+                            <SelectField
+                                label="Question Type"
+                                name={`questions.${currentQuestionIndex}.questionType`}
+                                options={QUESTION_TYPES.map((option, index) => ({
+                                    value: option.code,
+                                    label: option.display,
+                                    _id: index,
+                                }))}
+                                control={form.control}
+                                className="!w-full"
+                                required
+                            />
+                            <CustomInput
+                                control={form.control}
+                                name={`questions.${currentQuestionIndex}.questionMark`}
+                                label="Marks"
+                                required
+                            />
+                            <CustomInput
+                                control={form.control}
+                                name={`questions.${currentQuestionIndex}.questionPenalty`}
+                                label="Negative Marking"
+                                required
+                            />
+                            <div className="flex flex-col gap-2">
+                                <h1 className="text-sm font-semibold">Time Limit</h1>
+                                <div className="flex items-center gap-4 text-sm">
+                                    <CustomInput
+                                        control={form.control}
+                                        name={`questions.${currentQuestionIndex}.questionDuration.hrs`}
+                                        label=""
+                                        className="w-10"
+                                    />
+                                    <span>hrs</span>
+                                    <span>:</span>
+                                    <CustomInput
+                                        control={form.control}
+                                        name={`questions.${currentQuestionIndex}.questionDuration.min`}
+                                        label=""
+                                        className="w-10"
+                                    />
+                                    <span>min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </div>
+            {getValues(`questions.${currentQuestionIndex}.parentRichTextContent`) && (
+                <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
+                    <span>Comprehension Text</span>
+                    <FormField
+                        control={control}
+                        name={`questions.${currentQuestionIndex}.parentRichTextContent`}
+                        render={({ field }) => (
+                            <FormItem className="w-full">
+                                <FormControl>
+                                    <MainViewQuillEditor
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            )}
             <div className="flex w-full flex-col !flex-nowrap items-start gap-1">
+                <span>
+                    Question&nbsp;
+                    {questionsType
+                        ? formatStructure(questionsType, currentQuestionIndex + 1)
+                        : currentQuestionIndex + 1}
+                </span>
                 <FormField
                     control={control}
                     name={`questions.${currentQuestionIndex}.questionName`}
                     render={({ field }) => (
                         <FormItem className="w-full">
                             <FormControl>
-                                <PPTViewQuillEditor value={field.value} onChange={field.onChange} />
+                                <MainViewQuillEditor
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                />
                             </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-8 py-2">
+            <div className="flex flex-wrap items-end justify-center gap-8">
                 {Array.isArray(allQuestions) &&
                     allQuestions.length > 0 &&
                     Array.isArray(imageDetails) &&
                     imageDetails.length > 0 &&
-                    imageDetails.slice(0, 4).map((imgDetail, index) => {
-                        if (imgDetail.imageFile) {
-                            return (
-                                <div className="flex flex-col" key={index}>
-                                    <div className="size-16 items-center justify-center bg-black !p-0">
-                                        <img
-                                            src={imgDetail.imageFile}
-                                            alt="logo"
-                                            className="size-16"
+                    imageDetails.map((imgDetail, index) => {
+                        return (
+                            <div className="flex w-72 flex-col" key={index}>
+                                <div className="h-64 w-72 items-center justify-center bg-black !p-0">
+                                    <img
+                                        src={imgDetail.imageFile}
+                                        alt="logo"
+                                        className="h-64 w-96"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between pt-2">
+                                    <span className="text-sm">{imgDetail.imageTitle}</span>
+                                    <div className="flex items-center gap-4">
+                                        <QuestionImagePreviewDialogue
+                                            form={form}
+                                            currentQuestionIndex={currentQuestionIndex}
+                                            currentQuestionImageIndex={index}
+                                            setCurrentQuestionImageIndex={
+                                                setCurrentQuestionImageIndex
+                                            }
+                                            isUploadedAgain={true}
                                         />
+                                        <Button
+                                            variant="outline"
+                                            className="p-0 px-2"
+                                            onClick={() => handleRemovePicture(index)}
+                                        >
+                                            <TrashSimple size={32} className="text-red-500" />
+                                        </Button>
                                     </div>
                                 </div>
-                            );
-                        }
-
-                        // Return null if imageFile doesn't exist
-                        return null;
+                            </div>
+                        );
                     })}
+                {Array.isArray(imageDetails) && imageDetails.length < 4 && (
+                    <QuestionImagePreviewDialogue
+                        form={form}
+                        currentQuestionIndex={currentQuestionIndex}
+                        currentQuestionImageIndex={currentQuestionImageIndex}
+                        setCurrentQuestionImageIndex={setCurrentQuestionImageIndex}
+                    />
+                )}
             </div>
 
-            <div className="flex w-full grow flex-col gap-2">
-                <div className="flex gap-2">
+            <div className="flex w-full grow flex-col gap-4">
+                <span className="-mb-3">{answersType}</span>
+                <div className="flex gap-4">
                     <div
-                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-2 ${
+                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-4 ${
                             option1.isSelected ? "border border-primary-300 bg-primary-50" : ""
                         }`}
                     >
@@ -127,6 +260,58 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                                     {optionsType ? formatStructure(optionsType, "a") : "(a.)"}
                                 </span>
                             </div>
+                            {option1?.image?.imageFile ? (
+                                <div className="flex w-72 flex-col">
+                                    <div className="h-64 w-72 items-center justify-center bg-black !p-0">
+                                        <img
+                                            src={option1.image.imageFile}
+                                            alt="logo"
+                                            className="h-64 w-96"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between pt-2">
+                                        <span className="text-sm">{option1.image.imageTitle}</span>
+                                        <div className="flex items-center gap-4">
+                                            <OptionImagePreview
+                                                form={form}
+                                                option={0}
+                                                currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                className="p-0 px-2"
+                                                onClick={() => handleRemovePictureInOptions(0)}
+                                            >
+                                                <TrashSimple size={32} className="text-red-500" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <FormField
+                                    control={control}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${0}.name`}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <MainViewQuillEditor
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                            {!option1?.image?.imageFile && (
+                                <OptionImagePreview
+                                    form={form}
+                                    option={0}
+                                    currentQuestionIndex={currentQuestionIndex}
+                                />
+                            )}
                         </div>
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
@@ -152,7 +337,7 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                         </div>
                     </div>
                     <div
-                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-2 ${
+                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-4 ${
                             option2.isSelected ? "border border-primary-300 bg-primary-50" : ""
                         }`}
                     >
@@ -162,6 +347,58 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                                     {optionsType ? formatStructure(optionsType, "b") : "(b.)"}
                                 </span>
                             </div>
+                            {option2?.image?.imageFile ? (
+                                <div className="flex w-72 flex-col">
+                                    <div className="h-64 w-72 items-center justify-center bg-black !p-0">
+                                        <img
+                                            src={option2.image.imageFile}
+                                            alt="logo"
+                                            className="h-64 w-96"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between pt-2">
+                                        <span className="text-sm">{option2.image.imageTitle}</span>
+                                        <div className="flex items-center gap-4">
+                                            <OptionImagePreview
+                                                form={form}
+                                                option={1}
+                                                currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                className="p-0 px-2"
+                                                onClick={() => handleRemovePictureInOptions(1)}
+                                            >
+                                                <TrashSimple size={32} className="text-red-500" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <FormField
+                                    control={control}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${1}.name`}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <MainViewQuillEditor
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                            {!option2?.image?.imageFile && (
+                                <OptionImagePreview
+                                    form={form}
+                                    option={1}
+                                    currentQuestionIndex={currentQuestionIndex}
+                                />
+                            )}
                         </div>
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
@@ -187,9 +424,9 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-4">
                     <div
-                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-2 ${
+                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-4 ${
                             option3.isSelected ? "border border-primary-300 bg-primary-50" : ""
                         }`}
                     >
@@ -199,6 +436,58 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                                     {optionsType ? formatStructure(optionsType, "c") : "(c.)"}
                                 </span>
                             </div>
+                            {option3?.image?.imageFile ? (
+                                <div className="flex w-72 flex-col">
+                                    <div className="h-64 w-72 items-center justify-center bg-black !p-0">
+                                        <img
+                                            src={option3.image.imageFile}
+                                            alt="logo"
+                                            className="h-64 w-96"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between pt-2">
+                                        <span className="text-sm">{option3.image.imageTitle}</span>
+                                        <div className="flex items-center gap-4">
+                                            <OptionImagePreview
+                                                form={form}
+                                                option={2}
+                                                currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                className="p-0 px-2"
+                                                onClick={() => handleRemovePictureInOptions(2)}
+                                            >
+                                                <TrashSimple size={32} className="text-red-500" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <FormField
+                                    control={control}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${2}.name`}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <MainViewQuillEditor
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                            {!option3?.image?.imageFile && (
+                                <OptionImagePreview
+                                    form={form}
+                                    option={2}
+                                    currentQuestionIndex={currentQuestionIndex}
+                                />
+                            )}
                         </div>
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
@@ -224,7 +513,7 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                         </div>
                     </div>
                     <div
-                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-2 ${
+                        className={`flex w-1/2 items-center justify-between gap-4 rounded-md bg-neutral-100 p-4 ${
                             option4.isSelected ? "border border-primary-300 bg-primary-50" : ""
                         }`}
                     >
@@ -234,6 +523,58 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                                     {optionsType ? formatStructure(optionsType, "d") : "(d.)"}
                                 </span>
                             </div>
+                            {option4?.image?.imageFile ? (
+                                <div className="flex w-72 flex-col">
+                                    <div className="h-64 w-72 items-center justify-center bg-black !p-0">
+                                        <img
+                                            src={option4.image.imageFile}
+                                            alt="logo"
+                                            className="h-64 w-96"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between pt-2">
+                                        <span className="text-sm">{option4.image.imageTitle}</span>
+                                        <div className="flex items-center gap-4">
+                                            <OptionImagePreview
+                                                form={form}
+                                                option={3}
+                                                currentQuestionIndex={currentQuestionIndex}
+                                                isUploadedAgain={true}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                className="p-0 px-2"
+                                                onClick={() => handleRemovePictureInOptions(3)}
+                                            >
+                                                <TrashSimple size={32} className="text-red-500" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <FormField
+                                    control={control}
+                                    name={`questions.${currentQuestionIndex}.singleChoiceOptions.${3}.name`}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <MainViewQuillEditor
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                            {!option4?.image?.imageFile && (
+                                <OptionImagePreview
+                                    form={form}
+                                    option={3}
+                                    currentQuestionIndex={currentQuestionIndex}
+                                />
+                            )}
                         </div>
                         <div className="flex size-10 items-center justify-center rounded-full bg-white px-4">
                             <FormField
@@ -260,34 +601,23 @@ export const ComprehensiveSingleCorrectQuestionPaperTemplatePPTView = ({
                     </div>
                 </div>
             </div>
-
-            <div className="absolute bottom-10 right-12">
-                {(isDropdownVisible || isDropdownOpen) && (
-                    <DropdownMenu
-                        onOpenChange={(open) => {
-                            setIsDropdownOpen(open);
-                            if (!open) setIsDropdownVisible(false); // Reset visibility when closed
-                        }}
-                    >
-                        <DropdownMenuTrigger>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="scale-[2] border-2 border-primary-300 px-3 font-bold"
-                            >
-                                <DotsThree size="32" className="font-bold" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="mt-1">
-                            <DropdownMenuItem onClick={handleDuplicateSlide}>
-                                Duplicate Slide
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleDeleteSlide}>
-                                Delete Slide
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
+            <div className="mb-6 flex w-full flex-col !flex-nowrap items-start gap-1">
+                <span>{explanationsType}</span>
+                <FormField
+                    control={control}
+                    name={`questions.${currentQuestionIndex}.explanation`}
+                    render={({ field }) => (
+                        <FormItem className="w-full">
+                            <FormControl>
+                                <MainViewQuillEditor
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
             </div>
         </div>
     );
