@@ -96,6 +96,7 @@ export const uploadQuestionPaperFormSchema = z.object({
             numericType: z.string().optional(),
             validAnswers: z.union([z.array(z.number()), z.null()]).optional(),
             questionResponseType: z.union([z.string(), z.null()]).optional(),
+            subjectiveAnswerText: z.string().optional(),
         }),
     ),
 });

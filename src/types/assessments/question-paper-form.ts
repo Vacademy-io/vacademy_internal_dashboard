@@ -31,6 +31,7 @@ export interface MyQuestion {
     decimals: number;
     numericType: string;
     parentRichTextContent: string | null;
+    subjectiveAnswerText: string;
     // optionsJson: string | null; //Array for numerical answers
 }
 

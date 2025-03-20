@@ -268,6 +268,10 @@ export function QuestionPaperTemplate({
         );
     }, [currentQuestionIndex]);
 
+    // if(questions.length === 0 ){
+    //     return (<div>No questions avalible for this question paper</div>)
+    // }
+
     return (
         <Dialog>
             <DialogTrigger>
