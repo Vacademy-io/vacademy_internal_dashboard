@@ -95,6 +95,7 @@ export function transformQuestionPaperData(data: MyQuestionPaperFormInterface) {
                 question,
                 correctOptionIds,
                 question.validAnswers,
+                question.subjectiveAnswerText,
             );
             const options_json = getOptionsJson(question);
             const parent_rich_text = question.parentRichTextContent
@@ -145,6 +146,7 @@ function getEvaluationJSON(
     question: MyQuestion,
     correctOptionIds?: (string | null)[],
     validAnswers?: number[],
+    subjectiveAnswerText?: string,
 ): string {
     switch (question.questionType) {
         case "MCQS":
@@ -187,6 +189,20 @@ function getEvaluationJSON(
                 type: "NUMERIC",
                 data: {
                     validAnswers,
+                },
+            });
+        case "ONE_WORD":
+            return JSON.stringify({
+                type: "ONE_WORD",
+                data: {
+                    answer: subjectiveAnswerText,
+                },
+            });
+        case "LONG_ANSWER":
+            return JSON.stringify({
+                type: "ONE_WORD",
+                data: {
+                    answer: { id: null, type: "HTML", content: subjectiveAnswerText },
                 },
             });
         default:
@@ -474,9 +490,17 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
         const validAnswers = JSON.parse(item.auto_evaluation_json)?.data?.validAnswers || [];
         let decimals;
         let numericType;
+        let subjectiveAnswerText;
         if (item.options_json) {
             decimals = JSON.parse(item.options_json)?.decimals || 0;
             numericType = JSON.parse(item.options_json)?.numeric_type || "";
+        }
+        if (item.auto_evaluation_json) {
+            if (item.question_type === "ONE_WORD") {
+                subjectiveAnswerText = JSON.parse(item.auto_evaluation_json)?.data?.answer;
+            } else if (item.question_type === "LONG_ANSWER") {
+                subjectiveAnswerText = JSON.parse(item.auto_evaluation_json)?.data?.answer?.content;
+            }
         }
         console.log(item.parent_rich_text);
         const baseQuestion: MyQuestion = {
@@ -496,6 +520,7 @@ export const transformResponseDataToMyQuestionsSchema = (data: QuestionResponse[
             decimals,
             numericType,
             parentRichTextContent: item.parent_rich_text?.content || null,
+            subjectiveAnswerText,
         };
 
         if (item.question_type === "MCQS") {

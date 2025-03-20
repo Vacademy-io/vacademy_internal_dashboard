@@ -361,6 +361,7 @@ export const QuestionPaperUpload = ({
                         numericType: question.numericType,
                         validAnswers: question.validAnswers,
                         parentRichText: question.parentRichTextContent,
+                        subjectiveAnswerText: question.subjectiveAnswerText,
                     })),
                 });
             }
