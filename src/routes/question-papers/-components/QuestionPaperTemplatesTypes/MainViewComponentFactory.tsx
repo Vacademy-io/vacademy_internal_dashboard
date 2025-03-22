@@ -7,6 +7,8 @@ import { ComprehensiveSingleCorrectQuestionPaperTemplateMainView } from "./Compr
 import { QuestionType } from "@/constants/dummy-data";
 import { ComprehensiveMultipleCorrectQuestionPaperTemplateMainView } from "./Comprehensive MCQ(Multiple Correct)/ComprehensiveMultipleCorrectQuestionPaperTemplateMainView";
 import { ComprehensiveNumericQuestionPaperTemplateMainView } from "./ComprehensiveNumericType/ComprehensiveNumericQuestionPaperTemplateMainView";
+import { OneWordQuestionPaperTemplateMainView } from "./OneWordType/OneWordQuestionPaperTemplateMainView";
+import { LongAnswerQuestionPaperTemplateMainView } from "./LongAnswerType/LongAnswerQuestionPaperTemplateMainView";
 
 type MainViewComponentType = QuestionType;
 
@@ -19,6 +21,8 @@ const MainViewComponentsMap: Record<MainViewComponentType, MainViewComponent> = 
     CMCQS: ComprehensiveSingleCorrectQuestionPaperTemplateMainView,
     CMCQM: ComprehensiveMultipleCorrectQuestionPaperTemplateMainView,
     CNUMERIC: ComprehensiveNumericQuestionPaperTemplateMainView,
+    ONE_WORD: OneWordQuestionPaperTemplateMainView,
+    LONG_ANSWER: LongAnswerQuestionPaperTemplateMainView,
 };
 
 export const MainViewComponentFactory = (params: {
