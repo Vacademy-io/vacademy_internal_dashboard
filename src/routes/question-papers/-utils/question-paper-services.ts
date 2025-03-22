@@ -5,6 +5,7 @@ import {
     MARK_QUESTION_PAPER_STATUS,
     UPDATE_QUESTION_PAPER,
     ADD_QUESTIONS_TO_QUESTION_PAPER,
+    DELETE_PUBLIC_QUESTION_PAPER,
 } from "@/constants/urls";
 import authenticatedAxiosInstance from "@/lib/auth/axiosInstance";
 import {
@@ -58,6 +59,19 @@ export const updateQuestionPaper = async (
             method: "PATCH",
             url: `${UPDATE_QUESTION_PAPER}`,
             data: transformQuestionPaperEditData(data, previousQuestionPaperData),
+        });
+        return response?.data;
+    } catch (error: unknown) {
+        throw new Error(`${error}`);
+    }
+};
+
+export const deletePublicQuestionPaper = async (questionPaperId: string) => {
+    try {
+        const response = await authenticatedAxiosInstance({
+            method: "POST",
+            url: `${DELETE_PUBLIC_QUESTION_PAPER}`,
+            params: { questionPaperId },
         });
         return response?.data;
     } catch (error: unknown) {

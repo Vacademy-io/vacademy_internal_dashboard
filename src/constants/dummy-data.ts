@@ -5,6 +5,8 @@ export const QUESTION_TYPES = [
     { code: "CMCQS", display: "Comprehensive Multiple Choice (Single)" },
     { code: "CMCQM", display: "Comprehensive Multiple Choice (Multiple)" },
     { code: "CNUMERIC", display: "Comprehensive Numeric Answer" },
+    { code: "ONE_WORD", display: "One Word Answer" },
+    { code: "LONG_ANSWER", display: "Long Answer Type Question" },
 ];
 
 export enum QuestionType {
@@ -14,6 +16,8 @@ export enum QuestionType {
     CMCQS = "CMCQS",
     CMCQM = "CMCQM",
     CNUMERIC = "CNUMERIC",
+    ONE_WORD = "ONE_WORD",
+    LONG_ANSWER = "LONG_ANSWER",
 }
 
 export const NUMERIC_TYPES = [

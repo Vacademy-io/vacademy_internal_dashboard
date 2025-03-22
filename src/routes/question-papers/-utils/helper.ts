@@ -195,14 +195,18 @@ function getEvaluationJSON(
             return JSON.stringify({
                 type: "ONE_WORD",
                 data: {
-                    answer: subjectiveAnswerText,
+                    answer: subjectiveAnswerText?.replace(/<\/?p>/g, ""),
                 },
             });
         case "LONG_ANSWER":
             return JSON.stringify({
                 type: "ONE_WORD",
                 data: {
-                    answer: { id: null, type: "HTML", content: subjectiveAnswerText },
+                    answer: {
+                        id: null,
+                        type: "HTML",
+                        content: subjectiveAnswerText?.replace(/<\/?p>/g, ""),
+                    },
                 },
             });
         default:

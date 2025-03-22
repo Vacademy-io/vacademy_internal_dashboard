@@ -7,6 +7,8 @@ import { MultipleCorrectQuestionPaperTemplatePPTView } from "./MCQ(Multiple Corr
 import { QuestionType } from "@/constants/dummy-data";
 import { ComprehensiveMultipleCorrectQuestionPaperTemplatePPTView } from "./Comprehensive MCQ(Multiple Correct)/ComprehensiveMultipleCorrectQuestionPaperTemplatePPTView";
 import { ComprehensiveNumericQuestionPaperTemplatePPTView } from "./ComprehensiveNumericType/ComprehensiveNumericQuestionPaperTemplatePPTView";
+import { OneWordQuestionPaperTemplatePPTView } from "./OneWordType/OneWordQuestionPaperTemplatePPTView";
+import { LongAnswerQuestionPaperTemplatePPTView } from "./LongAnswerType/LongAnswerQuestionPaperTemplatePPTView";
 
 type PPTComponentType = QuestionType;
 
@@ -19,6 +21,8 @@ const PPTComponentsMap: Record<PPTComponentType, PPTComponent> = {
     CMCQS: SingleCorrectQuestionPaperTemplatePPTView,
     CMCQM: ComprehensiveMultipleCorrectQuestionPaperTemplatePPTView,
     CNUMERIC: ComprehensiveNumericQuestionPaperTemplatePPTView,
+    ONE_WORD: OneWordQuestionPaperTemplatePPTView,
+    LONG_ANSWER: LongAnswerQuestionPaperTemplatePPTView,
 };
 
 export const PPTComponentFactory = (params: {

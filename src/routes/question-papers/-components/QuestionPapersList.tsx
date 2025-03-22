@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DotsThree, Star } from "phosphor-react";
+import { DotsThree } from "phosphor-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,8 +9,8 @@ import {
 import { MyPagination } from "@/components/design-system/pagination";
 import ViewQuestionPaper from "./ViewQuestionPaper";
 import { useMutation } from "@tanstack/react-query";
-import { getQuestionPaperById, markQuestionPaperStatus } from "../-utils/question-paper-services";
-import { INSTITUTE_ID } from "@/constants/urls";
+import { getQuestionPaperById, deletePublicQuestionPaper } from "../-utils/question-paper-services";
+// import { INSTITUTE_ID } from "@/constants/urls";
 import {
     PaginatedResponse,
     QuestionPaperInterface,
@@ -81,16 +81,10 @@ export const QuestionPapersList = ({
     useEffect(() => {
         fetch();
     }, []);
-    const handleMarkQuestionPaperStatus = useMutation({
-        mutationFn: ({
-            status,
-            questionPaperId,
-            instituteId,
-        }: {
-            status: string;
-            questionPaperId: string;
-            instituteId: string;
-        }) => markQuestionPaperStatus(status, questionPaperId, instituteId),
+
+    const handleDeletePublicQuestionPaper = useMutation({
+        mutationFn: ({ questionPaperId }: { questionPaperId: string }) =>
+            deletePublicQuestionPaper(questionPaperId),
         onSuccess: () => {
             refetchData();
         },
@@ -99,19 +93,9 @@ export const QuestionPapersList = ({
         },
     });
 
-    const handleMarkFavourite = (questionPaperId: string, status: string) => {
-        handleMarkQuestionPaperStatus.mutate({
-            status: status === "FAVOURITE" ? "ACTIVE" : "FAVOURITE",
-            questionPaperId,
-            instituteId: INSTITUTE_ID,
-        });
-    };
-
     const handleDeleteQuestionPaper = (questionPaperId: string) => {
-        handleMarkQuestionPaperStatus.mutate({
-            status: "DELETE",
+        handleDeletePublicQuestionPaper.mutate({
             questionPaperId,
-            instituteId: INSTITUTE_ID,
         });
     };
 
@@ -198,19 +182,6 @@ export const QuestionPapersList = ({
                         <h1 className="font-medium">{questionsData.title}</h1>
                         {!isAssessment && (
                             <div className="flex items-center gap-4">
-                                <Star
-                                    size={20}
-                                    weight={questionsData.status === "FAVOURITE" ? "fill" : "light"}
-                                    onClick={() =>
-                                        handleMarkFavourite(questionsData.id, questionsData.status)
-                                    }
-                                    className={`cursor-pointer ${
-                                        questionsData.status === "FAVOURITE"
-                                            ? "text-yellow-500"
-                                            : "text-gray-300"
-                                    }`}
-                                />
-
                                 <DropdownMenu>
                                     <DropdownMenuTrigger>
                                         <Button

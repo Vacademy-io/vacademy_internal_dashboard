@@ -12,32 +12,4 @@ export const SidebarItemsData: SidebarItemsType[] = [
         title: "Question Papers",
         to: "/question-papers",
     },
-    // TODO : create the side bar option for taging
-    // {
-    //     icon: Scroll,
-    //     title: "Assessment Centre",
-    //     to: "/assessment",
-    //     subItems: [
-    //         {
-    //             subItem: "Examination",
-    //             subItemLink: "/assessment/exam",
-    //         },
-    //         {
-    //             subItem: "Mock Test",
-    //             subItemLink: "/assessment/create-assessment/LIVE_QUIZ",
-    //         },
-    //         {
-    //             subItem: "Practice Test",
-    //             subItemLink: "/assessment/create-assessment/PRACTICE",
-    //         },
-    //         {
-    //             subItem: "Survey",
-    //             subItemLink: "/assessment/create-assessment/SURVEY",
-    //         },
-    //         {
-    //             subItem: "Question Papers",
-    //             subItemLink: "/assessment/question-papers",
-    //         },
-    //     ],
-    // },
 ];

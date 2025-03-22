@@ -123,13 +123,21 @@ export function QuestionTypeSelection({
                 </div>
                 <div className="border"></div>
                 <div className="flex flex-col gap-4">
-                    <div className="text-subtitle font-semibold">Option Based</div>
-                    <QuestionType icon={<LongAnswer />} text="Long Answer"></QuestionType>
-                    <QuestionType icon={<SingleWord />} text="Single Word"></QuestionType>
+                    <div className="text-subtitle font-semibold">Writing Skills</div>
+                    <QuestionType
+                        icon={<LongAnswer />}
+                        type={QuestionTypeList.LONG_ANSWER}
+                        text="Long Answer"
+                    ></QuestionType>
+                    <QuestionType
+                        icon={<SingleWord />}
+                        type={QuestionTypeList.ONE_WORD}
+                        text="Single Word"
+                    ></QuestionType>
                 </div>
                 <div className="border"></div>
                 <div className="flex flex-col gap-4">
-                    <div className="text-subtitle font-semibold">Comprehension Based</div>
+                    <div className="text-subtitle font-semibold">Reading Skills</div>
                     <QuestionType
                         icon={<CMCQS />}
                         text="Comprehension Multiple Choice Questions (Single correct)"
