@@ -18,6 +18,7 @@ import {
     getIdByLevelName,
     getIdBySubjectName,
     transformResponseDataToMyQuestionsSchema,
+    getPPTViewTitle,
 } from "../-utils/helper";
 import {
     MyQuestion,
@@ -433,16 +434,11 @@ export function QuestionPaperTemplate({
                                                                                 <h1 className="left-0 w-96 whitespace-nowrap text-4xl font-bold">
                                                                                     {index + 1}
                                                                                     &nbsp;
-                                                                                    {getValues(
-                                                                                        `questions.${index}.questionType`,
-                                                                                    ) === "MCQS"
-                                                                                        ? "MCQ (Single Correct)"
-                                                                                        : getValues(
-                                                                                                `questions.${index}.questionType`,
-                                                                                            ) ===
-                                                                                            "MCQM"
-                                                                                          ? "MCQ (Multiple Correct)"
-                                                                                          : "MCQ (Multiple Correct)"}
+                                                                                    {getPPTViewTitle(
+                                                                                        getValues(
+                                                                                            `questions.${index}.questionType`,
+                                                                                        ) as QuestionType,
+                                                                                    )}
                                                                                 </h1>
                                                                                 <SortableDragHandle
                                                                                     variant="outline"

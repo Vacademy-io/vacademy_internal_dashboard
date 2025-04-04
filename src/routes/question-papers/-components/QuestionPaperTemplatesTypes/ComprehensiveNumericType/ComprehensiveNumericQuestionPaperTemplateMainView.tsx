@@ -23,8 +23,17 @@ export const ComprehensiveNumericQuestionPaperTemplateMainView = ({
     className,
 }: QuestionPaperTemplateFormProps) => {
     const [isMultipleAnswersAllowed, setIsMultipleAnswersAllowed] = useState(false);
+    const { control, getValues, setValue, trigger, watch } = form;
 
-    const { control, getValues, setValue } = form;
+    const numericType = watch(`questions.${currentQuestionIndex}.numericType`);
+    const validAnswers = watch(`questions.${currentQuestionIndex}.validAnswers`);
+    useEffect(() => {
+        if (validAnswers && validAnswers?.length > 1) setIsMultipleAnswersAllowed(true);
+    });
+    useEffect(() => {
+        trigger(`questions.${currentQuestionIndex}.validAnswers`);
+    }, [numericType, currentQuestionIndex, trigger]);
+
     const answersType = getValues("answersType") || "Answer:";
     const explanationsType = getValues("explanationsType") || "Explanation:";
     const questionsType = getValues("questionsType") || "";
@@ -127,7 +136,7 @@ export const ComprehensiveNumericQuestionPaperTemplateMainView = ({
                             />
                             <SelectField
                                 label="Numerical Type"
-                                name={`questions.${currentQuestionIndex}.numericTypes`}
+                                name={`questions.${currentQuestionIndex}.numericType`}
                                 options={NUMERIC_TYPES.map((option, index) => ({
                                     value: option,
                                     label: option,
