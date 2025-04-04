@@ -2,15 +2,15 @@ import {
     MCQS,
     MCQM,
     Numerical,
-    TrueFalse,
-    Match,
+    // TrueFalse,
+    // Match,
     LongAnswer,
     SingleWord,
     CMCQS,
     CMCQM,
-    CompTrueFalse,
-    CompLongAnswer,
-    CompSingleWord,
+    // CompTrueFalse,
+    // CompLongAnswer,
+    // CompSingleWord,
 } from "@/svgs";
 import {
     AlertDialogCancel,
@@ -100,7 +100,7 @@ export function QuestionTypeSelection({
                         text="Numerical"
                         type={QuestionTypeList.NUMERIC}
                     ></QuestionType>
-                    <QuestionType icon={<TrueFalse />} text="True False"></QuestionType>
+                    {/* <QuestionType icon={<TrueFalse />} text="True False"></QuestionType> */}
                 </div>
                 <div className="border"></div>
                 <div className="flex flex-col gap-4">
@@ -108,13 +108,15 @@ export function QuestionTypeSelection({
                     <QuestionType
                         icon={<MCQS />}
                         text="Multiple Choice Questions (Single correct)"
+                        type={QuestionTypeList.MCQS}
                     ></QuestionType>
                     <QuestionType
                         icon={<MCQM />}
                         text="Multiple Choice Questions (Multiple correct)"
+                        type={QuestionTypeList.MCQM}
                     ></QuestionType>
-                    <QuestionType icon={<TrueFalse />} text="True False"></QuestionType>
-                    <QuestionType icon={<Match />} text="Match the Collunm"></QuestionType>
+                    {/* <QuestionType icon={<TrueFalse />} text="True False"></QuestionType> */}
+                    {/* <QuestionType icon={<Match />} text="Match the Collunm"></QuestionType> */}
                 </div>
                 <div className="border"></div>
                 <div className="flex flex-col gap-4">
@@ -149,6 +151,11 @@ export function QuestionTypeSelection({
                         type={QuestionTypeList.CMCQM}
                     ></QuestionType>
                     <QuestionType
+                        icon={<CMCQM />}
+                        text="Comprehension Numeric"
+                        type={QuestionTypeList.CNUMERIC}
+                    ></QuestionType>
+                    {/* <QuestionType
                         icon={<CompTrueFalse />}
                         text="Comprehension True False"
                     ></QuestionType>
@@ -159,7 +166,7 @@ export function QuestionTypeSelection({
                     <QuestionType
                         icon={<CompSingleWord />}
                         text="Comprehension Single Word"
-                    ></QuestionType>
+                    ></QuestionType> */}
                 </div>
             </>
             {isDirectAdd && (
