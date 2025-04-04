@@ -14,6 +14,8 @@ import { formatStructure } from "../../../-utils/helper";
 import { QUESTION_TYPES, NUMERIC_TYPES } from "@/constants/dummy-data";
 import { MyInput } from "@/components/design-system/input";
 import { useState, useEffect } from "react";
+import { CollapsibleQuillEditor } from "../CollapsibleQuillEditor";
+import { useWatch } from "react-hook-form";
 
 export const NumericQuestionPaperTemplateMainView = ({
     form,
@@ -24,52 +26,26 @@ export const NumericQuestionPaperTemplateMainView = ({
 }: QuestionPaperTemplateFormProps) => {
     const [isMultipleAnswersAllowed, setIsMultipleAnswersAllowed] = useState(false);
 
-    const { control, getValues, setValue } = form;
+    const { control, getValues, setValue, trigger, watch } = form;
+
+    const numericType = watch(`questions.${currentQuestionIndex}.numericType`);
+    const validAnswers = watch(`questions.${currentQuestionIndex}.validAnswers`);
+    useEffect(() => {
+        if (validAnswers && validAnswers?.length > 1) setIsMultipleAnswersAllowed(true);
+    });
+    useEffect(() => {
+        trigger(`questions.${currentQuestionIndex}.validAnswers`);
+    }, [numericType, currentQuestionIndex, trigger]);
+    const formValues = useWatch({ control });
+    useEffect(() => {
+        console.log("Form data changed: ", formValues);
+    }, [formValues]);
     const answersType = getValues("answersType") || "Answer:";
     const explanationsType = getValues("explanationsType") || "Explanation:";
     const questionsType = getValues("questionsType") || "";
 
     const imageDetails = getValues(`questions.${currentQuestionIndex}.imageDetails`);
     const allQuestions = getValues("questions") || [];
-
-    const [isExpanded, setIsExpanded] = useState<boolean>(false);
-
-    interface CollapsibleQuillEditorProps {
-        value: string | null | undefined;
-        onChange: (content: string) => void;
-    }
-
-    const CollapsibleQuillEditor: React.FC<CollapsibleQuillEditorProps> = ({ value, onChange }) => {
-        return (
-            <div className="">
-                {!isExpanded ? (
-                    // Render only a single line preview
-                    <div className="flex cursor-pointer flex-row gap-1 border bg-primary-100 p-2">
-                        <div className="w-full max-w-[50vw] overflow-hidden text-ellipsis whitespace-nowrap text-body">
-                            {value && value.replace(/<[^>]+>/g, "")}
-                        </div>
-                        <button
-                            className="text-body text-blue-500"
-                            onClick={() => setIsExpanded(true)}
-                        >
-                            Show More
-                        </button>
-                    </div>
-                ) : (
-                    // Render full Quill Editor when expanded
-                    <div className="border bg-primary-100 p-2">
-                        <MainViewQuillEditor value={value} onChange={onChange} />
-                        <button
-                            className="mt-2 text-body text-blue-500"
-                            onClick={() => setIsExpanded(false)}
-                        >
-                            Show Less
-                        </button>
-                    </div>
-                )}
-            </div>
-        );
-    };
 
     useEffect(() => {
         const validAnswrs = form.getValues(`questions.${currentQuestionIndex}.validAnswers`);
@@ -127,7 +103,7 @@ export const NumericQuestionPaperTemplateMainView = ({
                             />
                             <SelectField
                                 label="Numerical Type"
-                                name={`questions.${currentQuestionIndex}.numericTypes`}
+                                name={`questions.${currentQuestionIndex}.numericType`}
                                 options={NUMERIC_TYPES.map((option, index) => ({
                                     value: option,
                                     label: option,
@@ -285,6 +261,11 @@ export const NumericQuestionPaperTemplateMainView = ({
                                         <Checkbox
                                             checked={isMultipleAnswersAllowed}
                                             onCheckedChange={(checked) => {
+                                                // const check =
+                                                //     !!checked ||
+                                                //     (validAnswers
+                                                //         ? validAnswers?.length > 1
+                                                //         : false);
                                                 setIsMultipleAnswersAllowed(!!checked);
                                                 if (!checked) {
                                                     // If unchecked, keep only the first answer
@@ -325,6 +306,61 @@ export const NumericQuestionPaperTemplateMainView = ({
                                                             parseFloat(e.target.value) || 0; // Ensure number
                                                         field.onChange(updatedAnswers);
                                                     }}
+                                                    // onChangeFunction={(e) => {
+                                                    //     let value = e.target.value;
+                                                    //     let numericValue = 0;
+
+                                                    //     switch (numericQuestionType) {
+                                                    //         case "SINGLE_DIGIT_NON_NEGATIVE_INTEGER":
+                                                    //             // Allow only digits 0-9, max 1 digit
+                                                    //             value = value
+                                                    //                 .replace(/[^0-9]/g, "")
+                                                    //                 .slice(0, 1);
+                                                    //             numericValue = parseInt(
+                                                    //                 value || "0",
+                                                    //             );
+                                                    //             break;
+
+                                                    //         case "POSITIVE_INTEGER":
+                                                    //             // Only digits > 0
+                                                    //             value = value.replace(
+                                                    //                 /[^0-9]/g,
+                                                    //                 "",
+                                                    //             );
+                                                    //             numericValue = parseInt(
+                                                    //                 value || "0",
+                                                    //             );
+                                                    //             break;
+
+                                                    //         case "INTEGER":
+                                                    //             // Allow negative and positive integers
+                                                    //             value = value
+                                                    //                 .replace(/[^0-9-]/g, "")
+                                                    //                 .replace(/(?!^)-/g, ""); // Only one '-' at start
+                                                    //             numericValue = parseInt(
+                                                    //                 value || "0",
+                                                    //             );
+                                                    //             break;
+
+                                                    //         case "DECIMAL":
+                                                    //         default:
+                                                    //             // Allow decimals (with one dot) and optional leading "-"
+                                                    //             value = value
+                                                    //                 .replace(/[^0-9.-]/g, "")
+                                                    //                 .replace(/(\..*?)\..*/g, "$1") // Allow only one '.'
+                                                    //                 .replace(/(?!^)-/g, ""); // Only one '-' at start
+                                                    //             numericValue = parseFloat(
+                                                    //                 value || "0",
+                                                    //             );
+                                                    //             break;
+                                                    //     }
+
+                                                    //     const updatedAnswers = [
+                                                    //         ...(field.value ?? []),
+                                                    //     ];
+                                                    //     updatedAnswers[index] = numericValue;
+                                                    //     field.onChange(updatedAnswers);
+                                                    // }}
                                                     inputType="number"
                                                 />
                                                 {/* Remove button for each answer */}

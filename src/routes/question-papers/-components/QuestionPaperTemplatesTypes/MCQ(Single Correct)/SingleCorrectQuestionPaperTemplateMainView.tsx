@@ -13,6 +13,7 @@ import { QuestionPaperTemplateFormProps } from "../../../-utils/question-paper-t
 import { formatStructure } from "../../../-utils/helper";
 import { OptionImagePreview } from "../../options/MCQ(Single Correct)/OptionImagePreview";
 import { QUESTION_TYPES } from "@/constants/dummy-data";
+import { CollapsibleQuillEditor } from "../CollapsibleQuillEditor";
 
 export const SingleCorrectQuestionPaperTemplateMainView = ({
     form,
@@ -162,7 +163,7 @@ export const SingleCorrectQuestionPaperTemplateMainView = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <MainViewQuillEditor
+                                    <CollapsibleQuillEditor
                                         value={field.value}
                                         onChange={field.onChange}
                                     />

@@ -105,26 +105,6 @@ export const QuestionPapersHeading = ({
                                     ></QuestionTypeSelection>
                                 </AlertDialog>
                             </AlertDialogContent>
-                            {/* <AlertDialogContent className="p-0">
-                                <div className="flex items-center justify-between rounded-md bg-primary-50">
-                                    <h1 className="rounded-sm p-4 font-bold text-primary-500">
-                                        Create Question Paper Manually
-                                    </h1>
-                                    <AlertDialogCancel
-                                        onClick={() => setIsManualQuestionPaperDialogOpen(false)}
-                                        className="border-none bg-primary-50 shadow-none hover:bg-primary-50"
-                                    >
-                                        <X className="text-neutral-600" />
-                                    </AlertDialogCancel>
-                                </div>
-                                <QuestionPaperUpload
-                                    isManualCreated={true}
-                                    currentQuestionIndex={currentQuestionIndex}
-                                    setCurrentQuestionIndex={setCurrentQuestionIndex}
-                                    currentQuestionImageIndex={currentQuestionImageIndex}
-                                    setCurrentQuestionImageIndex={setCurrentQuestionImageIndex}
-                                />
-                            </AlertDialogContent> */}
                         </AlertDialog>
 
                         {/* Upload from Device Dialog */}
